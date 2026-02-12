@@ -1,32 +1,21 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend owner-claim UX for admin access denied",
+  "title": "Update checkout BTC payment address to new hardcoded value",
   "requirements": [
     {
-      "id": "REQ-23",
-      "summary": "Enhance /admin/orders access gating to detect uninitialized site owner and allow the logged-in user to claim ownership with clear English feedback.",
+      "id": "REQ-1",
+      "summary": "Replace the hardcoded BTC payment address used during checkout so new orders store and display the new address across checkout success and order status views.",
       "acceptanceCriteria": [
-        "When a logged-in user visits /admin/orders and is not recognized as admin, the UI checks whether an owner is configured in the backend.",
-        "If no owner is configured, the Access Denied screen offers an explicit English action to claim ownership (e.g., a 'Claim Admin Access' button) and shows clear success/failure feedback.",
-        "If an owner is configured and the logged-in user is not the owner, the UI shows the existing English 'Access Denied' experience without offering a claim/reset option.",
-        "After successfully claiming ownership, the user can access /admin/orders without seeing 'Access Denied', and the Admin link becomes visible where appropriate."
+        "In frontend/src/pages/CheckoutPage.tsx, the fixed `btcAddress` value used when submitting `createOrder` is changed to `12usSpmU49fnNfm7VuoGkvkoT47jS5snri`.",
+        "After placing a new order, the checkout success screen’s “Bitcoin Address” field shows `12usSpmU49fnNfm7VuoGkvkoT47jS5snri`.",
+        "For a newly created order, the order status page shows the same updated BTC address (as stored on the order)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/CheckoutPage.tsx",
           "operation": "modify",
-          "description": "Add React Query hooks for site ownership resolution: a query hook that calls the backend capability to read the configured owner (getSiteOwner) and a mutation hook that calls the backend capability to claim ownership once (claimSiteOwner). Ensure the claim mutation invalidates/refetches admin-related queries (e.g., isCallerAdmin, orders) so UI updates immediately after success. This integrates with the existing core-infrastructure actor wiring (useActor) and the authorization system’s role checks. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/auth/AdminRouteGuard.tsx",
-          "operation": "modify",
-          "description": "Update the admin guard UX for authenticated-but-not-admin users: after isCallerAdmin resolves false, query the backend for the configured owner. If owner is not configured, show an English explanation and a 'Claim Admin Access' action that triggers the claim mutation, with clear success/failure states and a retry path; on success, refresh admin status and render children when admin becomes true. If an owner is configured and the caller is not the owner, keep the existing English Access Denied experience without any claim/reset option. Use existing shadcn-ui components already in this file (Card, Button, Alert) for consistent UI. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/utils/errors.ts",
-          "operation": "modify",
-          "description": "Extend backend error-to-English-message mapping to gracefully handle ownership-claim related failures (e.g., ownership already claimed / not allowed) so the claim flow displays clear English feedback and does not surface raw trap text. Verify the component's usage instructions before implementing."
+          "description": "Update the hardcoded `btcAddress` constant used to create orders from the old `1A1...` value to `12usSpmU49fnNfm7VuoGkvkoT47jS5snri`, ensuring the value passed as `btcPaymentAddress` to `useCreateOrder().mutateAsync(...)` and the captured `orderSnapshot.btcAddress` are the new address."
         }
       ]
     }

@@ -1,59 +1,34 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T14:34:49.116Z",
+  "generatedAt": "2026-02-12T19:36:09.502Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
+    "total": 1,
     "implemented": 1,
     "items": [
       {
-        "id": "REQ-21",
-        "summary": "Persist a single site-owner Principal in the Motoko backend and use it as the source of truth for admin authorization, so the owner can access admin-only APIs reliably after upgrades/redeploys.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-22",
-        "summary": "Add backend APIs to (1) read the currently configured owner principal and (2) allow a one-time ownership claim when no owner is configured yet, so the real owner can resolve an 'Access Denied' situation without redeploying.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-23",
-        "summary": "Update the frontend admin-route gating UX to help the real owner self-resolve 'Access Denied' when the backend has no owner configured yet, using only English user-facing text.",
+        "id": "REQ-1",
+        "summary": "Update the hardcoded Bitcoin payment address used during checkout so that newly created orders use and display the BTC address `12usSpmU49fnNfm7VuoGkvkoT47jS5snri` instead of the current `1A1...` address.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/auth/AdminRouteGuard.tsx",
-          "frontend/src/utils/errors.ts"
+          "frontend/src/pages/CheckoutPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/auth/AdminRouteGuard.tsx",
-          "frontend/src/utils/errors.ts"
+          "frontend/src/pages/CheckoutPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/auth/AdminRouteGuard.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/utils/errors.ts",
+    "frontend/src/pages/CheckoutPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

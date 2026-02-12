@@ -1,9 +1,10 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, Package, Shield } from 'lucide-react';
+import { Package, Shield, Search } from 'lucide-react';
 import { SiBitcoin } from 'react-icons/si';
 import { useInternetIdentity } from '@/hooks/useInternetIdentity';
-import { useIsCallerAdmin } from '@/hooks/useQueries';
+import { useIsOwner } from '@/hooks/useQueries';
+import { RecentOrdersMenu } from '@/components/orders/RecentOrdersMenu';
 
 interface SiteLayoutProps {
   children: React.ReactNode;
@@ -12,11 +13,11 @@ interface SiteLayoutProps {
 export function SiteLayout({ children }: SiteLayoutProps) {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
-  const { data: isAdmin } = useIsCallerAdmin();
+  const { data: isOwner } = useIsOwner();
   const currentYear = new Date().getFullYear();
   const appIdentifier = typeof window !== 'undefined' ? window.location.hostname : 'binance-giftcards';
 
-  const showAdminLink = !!identity && isAdmin;
+  const showAdminLink = !!identity && isOwner;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -47,6 +48,24 @@ export function SiteLayout({ children }: SiteLayoutProps) {
             >
               Catalog
             </Link>
+            <Link 
+              to="/track" 
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              Track Order
+            </Link>
+            <Link 
+              to="/faq" 
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              FAQ
+            </Link>
+            <Link 
+              to="/about" 
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              About
+            </Link>
             {showAdminLink && (
               <Link 
                 to="/admin/orders" 
@@ -57,13 +76,16 @@ export function SiteLayout({ children }: SiteLayoutProps) {
             )}
           </nav>
 
-          <Button 
-            onClick={() => navigate({ to: '/catalog' })}
-            className="gap-2"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            <span className="hidden sm:inline">Browse Cards</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <RecentOrdersMenu />
+            <Button 
+              onClick={() => navigate({ to: '/catalog' })}
+              className="gap-2"
+            >
+              <span className="hidden sm:inline">Browse Cards</span>
+              <span className="sm:hidden">Catalog</span>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -112,6 +134,32 @@ export function SiteLayout({ children }: SiteLayoutProps) {
                 <li>
                   <Link to="/catalog" className="text-muted-foreground hover:text-primary transition-colors">
                     Browse Catalog
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/track" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                    <Search className="h-4 w-4" />
+                    Track Order
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors">
+                    FAQ
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                    <img 
+                      src="/assets/generated/message-us-icon.dim_64x64.png" 
+                      alt="Message" 
+                      className="h-4 w-4"
+                    />
+                    Message Us
                   </Link>
                 </li>
                 {showAdminLink && (

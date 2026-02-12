@@ -5,9 +5,16 @@ import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderStatusPage from './pages/OrderStatusPage';
+import OrderHistoryPage from './pages/OrderHistoryPage';
+import TrackOrderPage from './pages/TrackOrderPage';
+import FaqPage from './pages/FaqPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
+import AdminContactMessagesPage from './pages/admin/AdminContactMessagesPage';
 
+// Root route with layout
 const rootRoute = createRootRoute({
   component: () => (
     <SiteLayout>
@@ -16,6 +23,7 @@ const rootRoute = createRootRoute({
   ),
 });
 
+// Public routes
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
@@ -40,6 +48,37 @@ const orderStatusRoute = createRoute({
   component: OrderStatusPage,
 });
 
+const orderHistoryRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/orders',
+  component: OrderHistoryPage,
+});
+
+const trackOrderRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/track',
+  component: TrackOrderPage,
+});
+
+const faqRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/faq',
+  component: FaqPage,
+});
+
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/about',
+  component: AboutPage,
+});
+
+const contactRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/contact',
+  component: ContactPage,
+});
+
+// Admin routes (protected)
 const adminOrdersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin/orders',
@@ -60,17 +99,36 @@ const adminOrderDetailRoute = createRoute({
   ),
 });
 
+const adminContactMessagesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/messages',
+  component: () => (
+    <AdminRouteGuard>
+      <AdminContactMessagesPage />
+    </AdminRouteGuard>
+  ),
+});
+
+// Create route tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
   catalogRoute,
   checkoutRoute,
   orderStatusRoute,
+  orderHistoryRoute,
+  trackOrderRoute,
+  faqRoute,
+  aboutRoute,
+  contactRoute,
   adminOrdersRoute,
   adminOrderDetailRoute,
+  adminContactMessagesRoute,
 ]);
 
+// Create router
 const router = createRouter({ routeTree });
 
+// Type declaration for router
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;

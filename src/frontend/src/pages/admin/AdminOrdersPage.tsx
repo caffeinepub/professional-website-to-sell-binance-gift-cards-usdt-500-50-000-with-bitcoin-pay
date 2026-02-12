@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useGetAllOrders } from '@/hooks/useQueries';
 import { OrderStatus } from '@/backend';
-import { Loader2, Eye, Package, AlertCircle } from 'lucide-react';
+import { Loader2, Eye, Package, AlertCircle, MessageSquare } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const navigate = useNavigate();
@@ -49,10 +49,19 @@ export default function AdminOrdersPage() {
   return (
     <div className="container py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-4 flex items-center gap-3">
-          <Package className="h-8 w-8" />
-          Admin: Order Management
-        </h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-4xl font-bold tracking-tight flex items-center gap-3">
+            <Package className="h-8 w-8" />
+            Admin: Order Management
+          </h1>
+          <Button
+            variant="outline"
+            onClick={() => navigate({ to: '/admin/messages' })}
+          >
+            <MessageSquare className="h-4 w-4 mr-2" />
+            View Messages
+          </Button>
+        </div>
         <p className="text-lg text-muted-foreground">
           View and manage all gift card orders
         </p>

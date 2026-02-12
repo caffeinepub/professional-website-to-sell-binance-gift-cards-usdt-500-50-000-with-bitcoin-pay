@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BitcoinPaymentInstructions } from '@/components/checkout/BitcoinPaymentInstructions';
 import { getCartSession, clearCartSession } from '@/state/cartSession';
+import { addOrderToHistory } from '@/state/orderHistory';
 import { useCreateOrder } from '@/hooks/useQueries';
 import { useActor } from '@/hooks/useActor';
 import { useBtcUsdtRate } from '@/hooks/useBtcUsdtRate';
@@ -72,7 +73,7 @@ export default function CheckoutPage() {
     
     // For demo purposes, using a fixed BTC address
     // Calculate BTC amount using current live rate (same rate shown to user)
-    const btcAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
+    const btcAddress = '12usSpmU49fnNfm7VuoGkvkoT47jS5snri';
     const btcAmount = calculateBtcAmountWithDiscount(cartSession.total, effectiveRate);
     const usdtAmount = discountedTotal;
 
@@ -83,6 +84,9 @@ export default function CheckoutPage() {
         btcPaymentAddress: btcAddress,
         amountInBitcoin: btcAmount,
       });
+      
+      // Add order to persistent history immediately after successful creation
+      addOrderToHistory(newOrderId, 'pendingPayment');
       
       // Capture stable snapshot BEFORE clearing cart
       setOrderSnapshot({

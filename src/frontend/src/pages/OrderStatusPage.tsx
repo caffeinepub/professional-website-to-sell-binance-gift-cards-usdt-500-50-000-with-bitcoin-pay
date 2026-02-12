@@ -8,6 +8,7 @@ import { BitcoinPaymentInstructions } from '@/components/checkout/BitcoinPayment
 import { useGetOrder } from '@/hooks/useQueries';
 import { useBtcUsdtRate } from '@/hooks/useBtcUsdtRate';
 import { convertBtcToUsdtWithRate } from '@/utils/pricing';
+import { getSimplifiedOrderStatus, getStatusBadgeVariant } from '@/utils/orderStatus';
 import { OrderStatus } from '@/backend';
 import { Loader2, AlertCircle, CheckCircle2, Clock, XCircle, Package } from 'lucide-react';
 
@@ -16,21 +17,6 @@ export default function OrderStatusPage() {
   const navigate = useNavigate();
   const { data: order, isLoading, isError } = useGetOrder(orderId);
   const { rate, source } = useBtcUsdtRate();
-
-  const getStatusBadge = (status: OrderStatus) => {
-    switch (status) {
-      case OrderStatus.pendingPayment:
-        return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" /> Pending Payment</Badge>;
-      case OrderStatus.paid:
-        return <Badge className="gap-1 bg-blue-500"><CheckCircle2 className="h-3 w-3" /> Paid</Badge>;
-      case OrderStatus.delivered:
-        return <Badge className="gap-1 bg-green-500"><Package className="h-3 w-3" /> Delivered</Badge>;
-      case OrderStatus.cancelled:
-        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" /> Cancelled</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
 
   if (isLoading) {
     return (
@@ -59,8 +45,28 @@ export default function OrderStatusPage() {
     );
   }
 
+  // Get simplified status and payment state
+  const { label: statusLabel, paymentReceived } = getSimplifiedOrderStatus(order.status);
+  const badgeVariant = getStatusBadgeVariant(order.status);
+
   // Calculate estimated USDT amount from BTC amount using current live rate
   const estimatedUsdtAmount = convertBtcToUsdtWithRate(order.amountInBitcoin, rate);
+
+  // Get icon for status badge
+  const getStatusIcon = () => {
+    switch (order.status) {
+      case OrderStatus.pendingPayment:
+        return <Clock className="h-3 w-3" />;
+      case OrderStatus.paid:
+        return <CheckCircle2 className="h-3 w-3" />;
+      case OrderStatus.delivered:
+        return <Package className="h-3 w-3" />;
+      case OrderStatus.cancelled:
+        return <XCircle className="h-3 w-3" />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="container py-12 max-w-4xl">
@@ -81,10 +87,36 @@ export default function OrderStatusPage() {
                   {order.buyerContact}
                 </CardDescription>
               </div>
-              {getStatusBadge(order.status)}
+              <Badge variant={badgeVariant} className="gap-1">
+                {getStatusIcon()}
+                {statusLabel}
+              </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Order Status</p>
+                <p className="font-medium text-lg">{statusLabel}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Payment Received</p>
+                <p className="font-medium text-lg">
+                  {paymentReceived === 'Yes' && (
+                    <span className="text-green-600 dark:text-green-400">Yes</span>
+                  )}
+                  {paymentReceived === 'No' && (
+                    <span className="text-amber-600 dark:text-amber-400">No</span>
+                  )}
+                  {paymentReceived === 'Cancelled' && (
+                    <span className="text-destructive">Cancelled</span>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <Separator />
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Bitcoin Amount</p>

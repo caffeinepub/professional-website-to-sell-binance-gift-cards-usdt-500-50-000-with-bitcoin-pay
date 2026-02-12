@@ -11,6 +11,12 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export type BitcoinAddress = string;
+export interface ContactMessage {
+  'id' : bigint,
+  'name' : string,
+  'contactDetail' : string,
+  'message' : string,
+}
 export interface Order {
   'id' : OrderId,
   'status' : OrderStatus,
@@ -23,6 +29,7 @@ export type OrderStatus = { 'cancelled' : null } |
   { 'paid' : null } |
   { 'pendingPayment' : null } |
   { 'delivered' : null };
+export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
@@ -30,15 +37,21 @@ export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'claimSiteOwner' : ActorMethod<[], undefined>,
+  'createContactMessage' : ActorMethod<[string, string, string], undefined>,
   'createOrder' : ActorMethod<
     [OrderId, string, BitcoinAddress, string],
     undefined
   >,
   'getAllOrders' : ActorMethod<[], Array<Order>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getContactMessages' : ActorMethod<[], Array<ContactMessage>>,
   'getOrder' : ActorMethod<[OrderId], Order>,
   'getSiteOwner' : ActorMethod<[], [] | [Principal]>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isOwner' : ActorMethod<[], boolean>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updateOrderStatus' : ActorMethod<[OrderId, OrderStatus], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

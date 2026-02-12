@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-frontend-admin-route-gating-ux-to-help-the-real-owner-self-resolve-access-denied-when-the-backend-has-no-owner-configured-yet-using-only-english-user-facing-text",
-      "featureTitle": "Update the frontend admin-route gating UX to help the real owner self-resolve 'Access Denied' when the backend has no owner configured yet, using only English user-facing text.",
+      "featureId": "feature-update-the-hardcoded-bitcoin-payment-address-used-during-checkout-so-that-newly-created-orders-use-and-display-the-btc-address-12usspmu49fnnfm7vuogkvkot47js5snri-instead-of-the-current-1a1-address",
+      "featureTitle": "Update the hardcoded Bitcoin payment address used during checkout so that newly created orders use and display the BTC address `12usSpmU49fnNfm7VuoGkvkoT47jS5snri` instead of the current `1A1...` address.",
       "files": [
-        "frontend/src/components/auth/AdminRouteGuard.tsx",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/utils/errors.ts"
+        "frontend/src/pages/CheckoutPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -18,7 +16,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-23"
+        "REQ-1"
       ],
       "confidence": "high"
     }

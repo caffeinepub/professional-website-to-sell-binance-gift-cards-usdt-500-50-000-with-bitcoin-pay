@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useQueries } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { type Order, type OrderId, type OrderStatus } from '@/backend';
+import { type Order, type OrderId, type OrderStatus, type ContactMessage } from '@/backend';
 import { type Principal } from '@dfinity/principal';
 import { formatBackendError } from '@/utils/errors';
 
@@ -94,6 +94,50 @@ export function useUpdateOrderStatus() {
   });
 }
 
+export function useCreateContactMessage() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: {
+      name: string;
+      contactDetail: string;
+      message: string;
+    }) => {
+      if (!actor) {
+        throw new Error('Connection not ready. Please wait a moment and try again.');
+      }
+      
+      try {
+        await actor.createContactMessage(
+          params.name,
+          params.contactDetail,
+          params.message
+        );
+      } catch (error) {
+        throw new Error(formatBackendError(error));
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contactMessages'] });
+    },
+  });
+}
+
+export function useGetContactMessages() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<ContactMessage[]>({
+    queryKey: ['contactMessages'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getContactMessages();
+    },
+    enabled: !!actor && !isFetching,
+    retry: false,
+  });
+}
+
 export function useIsCallerAdmin() {
   const { actor, isFetching } = useActor();
 
@@ -108,6 +152,20 @@ export function useIsCallerAdmin() {
   });
 }
 
+export function useIsOwner() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['isOwner'],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.isOwner();
+    },
+    enabled: !!actor && !isFetching,
+    retry: false,
+  });
+}
+
 export function useGetSiteOwner() {
   const { actor, isFetching } = useActor();
 
@@ -115,7 +173,17 @@ export function useGetSiteOwner() {
     queryKey: ['siteOwner'],
     queryFn: async () => {
       if (!actor) return null;
-      return actor.getSiteOwner();
+      const result = await actor.getSiteOwner();
+      // Normalize the optional result - handle both null and empty array cases
+      if (result === null || result === undefined) {
+        return null;
+      }
+      // If it's an array-like structure (from Candid optional encoding)
+      if (Array.isArray(result)) {
+        return result.length > 0 ? result[0] : null;
+      }
+      // Otherwise return as-is (should be a Principal)
+      return result;
     },
     enabled: !!actor && !isFetching,
     retry: false,
@@ -138,11 +206,19 @@ export function useClaimSiteOwner() {
         throw new Error(formatBackendError(error));
       }
     },
-    onSuccess: () => {
-      // Invalidate all admin-related queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['siteOwner'] });
-      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    onSuccess: async () => {
+      // Invalidate and refetch all admin-related queries to refresh UI immediately
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['siteOwner'] }),
+        queryClient.invalidateQueries({ queryKey: ['isOwner'] }),
+        queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] }),
+      ]);
+      
+      // Force refetch to ensure fresh data
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['siteOwner'] }),
+        queryClient.refetchQueries({ queryKey: ['isOwner'] }),
+      ]);
     },
   });
 }

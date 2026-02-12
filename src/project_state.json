@@ -1,179 +1,18 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 17,
-  "summary": "Build a professional website to sell Binance Gift Cards (USDT values $500–$50,000) and accept payments in Bitcoin.",
-  "architectural_notes": [
-    "Introduce a configurable pricing multiplier/discount (e.g., 0.5) used when calculating the BTC amount shown in payment instructions.",
-    "Add owner-only access control for the admin panel (authentication + authorization).",
-    "Use a real-time BTC conversion source for USDT→BTC calculation (and ensure the same rate/logic is used consistently anywhere BTC equivalents are displayed).",
-    "Admin panel route may be /admin/orders (not /admin); ensure routing/404 handling is consistent and documented."
-  ],
+  "projectStateVersion": 3,
+  "summary": "New project",
+  "architectural_notes": [],
   "known_issues": [
-    "Checkout flow bug: clicking 'Create order' / 'Get payment instructions' does not display Bitcoin payment instructions (e.g., BTC address/payment details) to the user.",
-    "BTC equivalent for the half-price (e.g., $250) is not being converted using a real-time exchange rate; displayed BTC amount is stale/incorrect.",
-    "Catalog/product cards are displaying an incorrect BTC equivalent for the 50% price (e.g., user expects ~$250 ≈ 0.0037 BTC) — conversion logic/rate is not matching current market rate used elsewhere.",
-    "Admin access control bug: site owner is receiving “Access Denied” when trying to access the admin panel via Internet Identity (likely owner principal mismatch or env/config issue).",
-    "Admin route discovery issue: visiting /admin returns “Not found”; admin panel appears to be mounted at /admin/orders instead of /admin."
+    "BTC payment address shown for “Chez Jb” needs to be updated to 12usSpmU49fnNfm7VuoGkvkoT47jS5snri (currently shows old 1A1.. address)."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-create-a-responsive-professional-marketing-storefront-experience-for-selling-binance-gift-cards-with-fixed-usdt-denominations-from-500-up-to-50-000",
-      "title": "Create a responsive, professional marketing + storefront experience for selling Binance Gift Cards with fixed USDT denominations from $500 up to $50,000.",
+      "id": "feature-update-the-hardcoded-bitcoin-payment-address-used-during-checkout-so-that-newly-created-orders-use-and-display-the-btc-address-12usspmu49fnnfm7vuogkvkot47js5snri-instead-of-the-current-1a1-address",
+      "title": "Update the hardcoded Bitcoin payment address used during checkout so that newly created orders use and display the BTC address `12usSpmU49fnNfm7VuoGkvkoT47jS5snri` instead of the current `1A1...` address.",
       "reqIds": [
         "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-a-product-catalog-ui-that-lets-users-browse-and-select-a-gift-card-denomination-and-quantity-and-calculates-totals-in-usdt",
-      "title": "Implement a product catalog UI that lets users browse and select a gift card denomination and quantity, and calculates totals in USDT.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-a-checkout-flow-that-collects-buyer-contact-details-and-presents-bitcoin-payment-instructions-bitcoin-payment-acceptance-for-the-order",
-      "title": "Implement a checkout flow that collects buyer contact details and presents Bitcoin payment instructions (Bitcoin payment acceptance) for the order.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-minimal-admin-screen-no-external-auth-required-to-review-orders-and-update-order-status-manually-e-g-mark-as-paid-delivered-after-verifying-bitcoin-payment-off-app",
-      "title": "Add a minimal admin screen (no external auth required) to review orders and update order status manually (e.g., mark as Paid/Delivered) after verifying Bitcoin payment off-app.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-apply-a-coherent-distinctive-visual-theme-for-a-professional-crypto-storefront-avoid-blue-purple-including-consistent-color-palette-typography-button-styles-and-section-layouts",
-      "title": "Apply a coherent, distinctive visual theme for a professional crypto storefront (avoid blue/purple), including consistent color palette, typography, button styles, and section layouts.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-generated-static-image-assets-and-render-them-in-the-ui-from-frontend-public-assets-generated-do-not-serve-images-via-the-backend",
-      "title": "Add generated static image assets and render them in the UI from frontend/public/assets/generated (do not serve images via the backend).",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-fix-the-checkout-page-so-bitcoin-payment-instructions-reliably-display-immediately-after-a-successful-create-order-get-payment-instructions-submission-even-after-the-cart-session-is-cleared",
-      "title": "Fix the Checkout page so Bitcoin payment instructions reliably display immediately after a successful \"Create Order & Get Payment Instructions\" submission, even after the cart session is cleared.",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-clear-error-feedback-when-order-creation-fails-including-when-the-backend-actor-is-not-initialized-ensuring-users-understand-why-payment-instructions-are-not-shown",
-      "title": "Add clear error feedback when order creation fails (including when the backend actor is not initialized), ensuring users understand why payment instructions are not shown.",
-      "reqIds": [
-        "REQ-9"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-apply-a-global-50-pricing-rule-so-that-the-amount-shown-in-bitcoin-payment-instructions-reflects-half-of-the-selected-gift-card-usdt-total-e-g-a-500-card-charges-250-worth-of-btc-consistently-across-checkout-success-view-and-the-order-status-page-for-pending-payment-orders",
-      "title": "Apply a global 50% pricing rule so that the amount shown in Bitcoin payment instructions reflects half of the selected gift card USDT total (e.g., a $500 card charges $250 worth of BTC), consistently across Checkout success view and the Order Status page for pending-payment orders.",
-      "reqIds": [
-        "REQ-10"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-restrict-admin-panel-access-so-only-the-site-owner-can-access-admin-routes-and-admin-backend-operations-listing-all-orders-and-updating-order-status-use-internet-identity-for-owner-authentication-authorization-and-show-an-english-access-denied-experience-to-non-owners",
-      "title": "Restrict Admin Panel access so only the site owner can access admin routes and admin backend operations (listing all orders and updating order status). Use Internet Identity for owner authentication/authorization and show an English “Access denied” experience to non-owners.",
-      "reqIds": [
-        "REQ-11"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-catalog-page-ui-to-display-each-supported-gift-card-denomination-as-its-own-separate-product-card-grid-list-rather-than-only-a-single-product-with-a-denomination-dropdown",
-      "title": "Update the Catalog page UI to display each supported gift card denomination as its own separate product card (grid/list), rather than only a single product with a denomination dropdown.",
-      "reqIds": [
-        "REQ-12"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-on-each-denomination-product-card-in-the-catalog-display-the-specific-50-half-price-directly-under-the-denomination-in-both-usdt-and-btc-english-text-using-the-same-discount-and-btc-conversion-logic-currently-used-by-checkout-so-the-numbers-match-app-wide",
-      "title": "On each denomination product card in the catalog, display the specific 50% (half) price directly under the denomination in both USDT and BTC (English text), using the same discount and BTC conversion logic currently used by Checkout so the numbers match app-wide.",
-      "reqIds": [
-        "REQ-13"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-expand-the-catalog-s-supported-denomination-set-to-include-additional-denominations-explicitly-mentioned-by-the-user-at-minimum-800-and-2000-usdt-so-they-appear-as-separate-product-cards-and-can-be-purchased-through-the-existing-checkout-flow",
-      "title": "Expand the catalog’s supported denomination set to include additional denominations explicitly mentioned by the user (at minimum: 800 and 2000 USDT) so they appear as separate product cards and can be purchased through the existing checkout flow.",
-      "reqIds": [
-        "REQ-14"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-replace-the-fixed-btc-usdt-conversion-currently-hardcoded-as-btc-to-usdt-rate-45000-with-a-real-time-btc-usdt-exchange-rate-fetched-from-a-public-price-api-and-use-that-rate-to-compute-the-btc-equivalent-everywhere-the-app-displays-or-submits-btc-amounts-catalog-denomination-cards-checkout-order-creation-payment-instructions-and-order-status-page-all-user-facing-text-related-to-exchange-rates-must-be-in-english",
-      "title": "Replace the fixed BTC/USDT conversion (currently hardcoded as `BTC_TO_USDT_RATE = 45000`) with a real-time BTC↔USDT exchange rate fetched from a public price API, and use that rate to compute the BTC equivalent everywhere the app displays or submits BTC amounts (catalog denomination cards, checkout order creation + payment instructions, and order status page). All user-facing text related to exchange rates must be in English.",
-      "reqIds": [
-        "REQ-15"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-expand-the-supported-gift-card-denomination-set-to-include-additional-high-tier-values-requested-by-the-user-so-they-appear-as-separate-product-cards-and-can-be-purchased-via-the-existing-checkout-flow-15-000-20-000-30-000-35-000-40-000-45-000-usdt",
-      "title": "Expand the supported gift card denomination set to include additional high-tier values requested by the user so they appear as separate product cards and can be purchased via the existing checkout flow: 15,000; 20,000; 30,000; 35,000; 40,000; 45,000 USDT.",
-      "reqIds": [
-        "REQ-16"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-improve-the-visual-design-of-the-denomination-product-cards-to-be-more-aesthetically-polished-and-explicitly-label-each-card-as-a-binance-gift-card-or-binance-gift-card-voucher-english-while-keeping-the-existing-selection-behavior-and-pricing-details-50-usdt-and-btc-equivalent",
-      "title": "Improve the visual design of the denomination product cards to be more aesthetically polished and explicitly label each card as a “Binance Gift Card” or “Binance Gift Card / Voucher” (English), while keeping the existing selection behavior and pricing details (50% USDT and BTC equivalent).",
-      "reqIds": [
-        "REQ-17"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-visual-styling-of-the-separate-denomination-product-cards-and-closely-related-catalog-ui-to-match-a-binance-gift-card-like-theme-binance-style-look-and-feel-while-keeping-all-existing-selection-behavior-pricing-50-discount-and-real-time-btc-conversion-logic-unchanged",
-      "title": "Update the visual styling of the separate denomination product cards (and closely related catalog UI) to match a Binance Gift Card-like theme (Binance-style look and feel), while keeping all existing selection behavior, pricing (50% discount), and real-time BTC conversion logic unchanged.",
-      "reqIds": [
-        "REQ-18"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-the-btc-equivalent-shown-on-each-denomination-product-card-is-computed-using-the-same-real-time-btc-usdt-exchange-rate-that-is-displayed-in-the-ui-so-the-btc-amount-is-not-self-added-stale-and-matches-the-current-market-rate-used-across-the-app",
-      "title": "Ensure the BTC equivalent shown on each denomination product card is computed using the same real-time BTC↔USDT exchange rate that is displayed in the UI, so the BTC amount is not “self-added”/stale and matches the current market rate used across the app.",
-      "reqIds": [
-        "REQ-19"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-fix-the-checkout-flow-error-when-the-user-clicks-create-order-get-payment-instructions-by-ensuring-order-creation-only-runs-when-the-backend-actor-is-ready-and-by-surfacing-a-clear-english-error-message-when-the-actor-is-unavailable-or-the-backend-traps",
-      "title": "Fix the Checkout flow error when the user clicks “Create Order & Get Payment Instructions” by ensuring order creation only runs when the backend actor is ready, and by surfacing a clear English error message when the actor is unavailable or the backend traps.",
-      "reqIds": [
-        "REQ-20"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-frontend-admin-route-gating-ux-to-help-the-real-owner-self-resolve-access-denied-when-the-backend-has-no-owner-configured-yet-using-only-english-user-facing-text",
-      "title": "Update the frontend admin-route gating UX to help the real owner self-resolve 'Access Denied' when the backend has no owner configured yet, using only English user-facing text.",
-      "reqIds": [
-        "REQ-23"
       ],
       "version": 1
     }
@@ -181,78 +20,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Create a professional e-commerce website for selling Binance Gift Cards (USDT denominations $500–$50,000) with Bitcoin payment acceptance.",
+      "summary": "Replace the displayed BTC payment address for “Chez Jb” (currently showing 1A1.. style) with 12usSpmU49fnNfm7VuoGkvkoT47jS5snri",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Create backend order storage and basic order status tracking (e.g., Pending Payment, Paid, Delivered, Cancelled) in the single Motoko main actor.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Apply a 50% pricing rule so Bitcoin payment instructions show half of the selected gift card’s USDT value (e.g., $500 card charges $250 equivalent in BTC) for all denominations.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Restrict Admin Panel access to owner-only (add authentication/authorization so only the site owner can access admin features).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-8",
-      "summary": "Show each gift card denomination as a separate product card in the catalog, and display its specific half-price (50% of USDT value) under the card, including the equivalent BTC amount (e.g., $500 card shows $250 in BTC).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Fix BTC amount calculation so the displayed half-price (e.g., $250) is converted to BTC using a real-time exchange rate (not a static/non-updating conversion).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-10",
-      "summary": "Expand supported gift card denominations to include higher tiers (e.g., 15,000; 20,000; 30,000; 35,000; 40,000; 45,000 USDT) as selectable/purchasable product cards.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-11",
-      "summary": "Improve the visual design of individual denomination product cards and explicitly label them as Binance Gift Card/Voucher for a more professional, authentic storefront presentation.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-12",
-      "summary": "Update the catalog’s separate denomination product cards to use a Binance Gift Card-like visual theme (Binance-style branding/theme for the cards/UI).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-13",
-      "summary": "Persist a single site-owner Principal in the Motoko backend and use it as the source of truth for admin authorization, so the owner can access admin-only APIs reliably after upgrades/redeploys.",
-      "reqIds": [
-        "REQ-21"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-14",
-      "summary": "Add backend APIs to (1) read the currently configured owner principal and (2) allow a one-time ownership claim when no owner is configured yet, so the real owner can resolve an 'Access Denied' situation without redeploying.",
-      "reqIds": [
-        "REQ-22"
-      ],
       "status": "pending"
     }
   ],
-  "projectName": "Professional website to sell Binance Gift Cards (USDT $500–$50,000) with Bitcoin payments",
+  "projectName": "Replace displayed Bitcoin payment address with new BTC address",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

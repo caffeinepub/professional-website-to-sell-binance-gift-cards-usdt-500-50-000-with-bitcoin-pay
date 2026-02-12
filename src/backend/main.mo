@@ -6,14 +6,13 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 actor {
-  // Persist the site owner principal for future admin authorization
-  stable var siteOwner : ?Principal = null;
-
-  // Initialize authorization
+  var siteOwner : ?Principal = null;
   let accessControlState = AccessControl.initState();
+
   include MixinAuthorization(accessControlState);
 
   type BitcoinAddress = Text;
+
   type OrderId = Text;
 
   type OrderStatus = {
@@ -31,10 +30,24 @@ actor {
     status : OrderStatus;
   };
 
-  stable let orders = Map.empty<OrderId, Order>();
+  public type UserProfile = {
+    name : Text;
+  };
 
-  // Helper function to check if caller is the site owner (admin)
-  private func isOwner(caller : Principal) : Bool {
+  let orders = Map.empty<OrderId, Order>();
+  let userProfiles = Map.empty<Principal, UserProfile>();
+
+  type ContactMessage = {
+    id : Nat;
+    name : Text;
+    contactDetail : Text;
+    message : Text;
+  };
+
+  var contactMessageIdCounter = 0;
+  let contactMessages = Map.empty<Nat, ContactMessage>();
+
+  public query ({ caller }) func isOwner() : async Bool {
     switch (siteOwner) {
       case (null) { false };
       case (?owner) { Principal.equal(caller, owner) };
@@ -50,12 +63,41 @@ actor {
       Runtime.trap("Site owner has already been claimed");
     };
     siteOwner := ?caller;
-    // Grant admin role in AccessControl system for consistency
-    AccessControl.assignRole(accessControlState, caller, caller, #admin);
   };
 
-  // Public function - accessible to anyone (guests, users, admins)
+  func checkAdminOrOwner(caller : Principal) {
+    let isOwner = switch (siteOwner) {
+      case (null) { false };
+      case (?owner) { Principal.equal(caller, owner) };
+    };
+    if (not isOwner and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins or the site owner can perform this action");
+    };
+  };
+
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view profiles");
+    };
+    userProfiles.get(caller);
+  };
+
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
+    };
+    userProfiles.get(user);
+  };
+
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    userProfiles.add(caller, profile);
+  };
+
   public shared ({ caller }) func createOrder(id : OrderId, buyerContact : Text, btcPaymentAddress : BitcoinAddress, amountInBitcoin : Text) : async () {
+    // Public function - anyone including guests can create orders (e-commerce checkout)
     if (orders.containsKey(id)) { Runtime.trap("Order already exists") };
 
     let newOrder = {
@@ -68,34 +110,46 @@ actor {
     orders.add(id, newOrder);
   };
 
-  // Public query - accessible to anyone (guests, users, admins)
   public query ({ caller }) func getOrder(id : OrderId) : async Order {
+    // Public function - anyone can view order details (needed for payment confirmation)
     switch (orders.get(id)) {
       case (null) { Runtime.trap("Order does not exist") };
       case (?order) { order };
     };
   };
 
-  // Admin-only function - requires site owner authorization
   public query ({ caller }) func getAllOrders() : async [Order] {
-    if (not isOwner(caller)) {
-      Runtime.trap("Access denied: Only the site owner can access the admin panel. Please log in using Internet Identity with the owner account.");
-    };
-
+    checkAdminOrOwner(caller);
     let entries = orders.toArray();
     entries.map(func((_, order)) { order });
   };
 
-  // Admin-only function - requires site owner authorization
   public shared ({ caller }) func updateOrderStatus(id : OrderId, newStatus : OrderStatus) : async () {
-    if (not isOwner(caller)) {
-      Runtime.trap("Access denied: Only the site owner can update order status. Please log in using Internet Identity with the owner account.");
-    };
+    checkAdminOrOwner(caller);
 
     let updatedOrder = switch (orders.get(id)) {
       case (null) { Runtime.trap("This order does not exist."); };
       case (?order) { { order with status = newStatus } };
     };
     orders.add(id, updatedOrder);
+  };
+
+  public shared ({ caller }) func createContactMessage(name : Text, contactDetail : Text, message : Text) : async () {
+    // Public function - anyone including guests can submit contact messages
+    let newMessage : ContactMessage = {
+      id = contactMessageIdCounter;
+      name;
+      contactDetail;
+      message;
+    };
+
+    contactMessages.add(contactMessageIdCounter, newMessage);
+    contactMessageIdCounter += 1;
+  };
+
+  public query ({ caller }) func getContactMessages() : async [ContactMessage] {
+    checkAdminOrOwner(caller);
+    let entries = contactMessages.toArray();
+    entries.map(func((_, msg)) { msg });
   };
 };

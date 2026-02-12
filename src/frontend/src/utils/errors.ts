@@ -35,14 +35,47 @@ export function isActorNotReadyError(error: unknown): boolean {
 }
 
 /**
+ * Check if an error indicates ownership is already claimed
+ */
+export function isOwnershipAlreadyClaimedError(error: unknown): boolean {
+  const message = formatErrorMessage(error).toLowerCase();
+  return message.includes('already been claimed') || 
+         message.includes('owner has already been claimed') ||
+         message.includes('site owner has already been claimed');
+}
+
+/**
+ * Check if an error is an authorization/permission error from the backend
+ */
+export function isAuthorizationError(error: unknown): boolean {
+  const message = formatErrorMessage(error).toLowerCase();
+  return message.includes('unauthorised') || 
+         message.includes('unauthorized') ||
+         message.includes('only admin') ||
+         message.includes('assign user roles') ||
+         message.includes('access denied') ||
+         message.includes('permission');
+}
+
+/**
  * Convert backend errors to user-friendly messages
  */
 export function formatBackendError(error: unknown): string {
   const message = formatErrorMessage(error);
   
   // Map ownership-related errors
-  if (message.includes('Site owner has already been claimed')) {
+  if (isOwnershipAlreadyClaimedError(error)) {
     return 'Admin access has already been claimed by another user. Please contact the site owner if you believe this is an error.';
+  }
+  
+  // Map authorization errors (including British spelling variants)
+  if (isAuthorizationError(error)) {
+    // Special case for ownership claim authorization errors
+    if (message.toLowerCase().includes('assign user roles') || 
+        message.toLowerCase().includes('only admin')) {
+      return 'There was an authorization issue while claiming ownership. This may be a temporary backend configuration issue. Please try again in a moment, or contact support if the problem persists.';
+    }
+    return 'You do not have permission to perform this action.';
   }
   
   // Map common backend errors to friendly messages
@@ -52,10 +85,6 @@ export function formatBackendError(error: unknown): string {
   
   if (message.includes('does not exist')) {
     return 'The requested item was not found.';
-  }
-  
-  if (message.includes('Access denied')) {
-    return 'You do not have permission to perform this action.';
   }
   
   if (isActorNotReadyError(error)) {

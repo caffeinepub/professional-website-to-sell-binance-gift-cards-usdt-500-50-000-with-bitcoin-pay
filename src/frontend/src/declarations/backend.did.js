@@ -28,21 +28,38 @@ export const Order = IDL.Record({
   'buyerContact' : IDL.Text,
   'amountInBitcoin' : IDL.Text,
 });
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const ContactMessage = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'contactDetail' : IDL.Text,
+  'message' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'claimSiteOwner' : IDL.Func([], [], []),
+  'createContactMessage' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
   'createOrder' : IDL.Func(
       [OrderId, IDL.Text, BitcoinAddress, IDL.Text],
       [],
       [],
     ),
   'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getContactMessages' : IDL.Func([], [IDL.Vec(ContactMessage)], ['query']),
   'getOrder' : IDL.Func([OrderId], [Order], ['query']),
   'getSiteOwner' : IDL.Func([], [IDL.Opt(IDL.Principal)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isOwner' : IDL.Func([], [IDL.Bool], ['query']),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'updateOrderStatus' : IDL.Func([OrderId, OrderStatus], [], []),
 });
 
@@ -69,21 +86,38 @@ export const idlFactory = ({ IDL }) => {
     'buyerContact' : IDL.Text,
     'amountInBitcoin' : IDL.Text,
   });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const ContactMessage = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'contactDetail' : IDL.Text,
+    'message' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'claimSiteOwner' : IDL.Func([], [], []),
+    'createContactMessage' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
     'createOrder' : IDL.Func(
         [OrderId, IDL.Text, BitcoinAddress, IDL.Text],
         [],
         [],
       ),
     'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getContactMessages' : IDL.Func([], [IDL.Vec(ContactMessage)], ['query']),
     'getOrder' : IDL.Func([OrderId], [Order], ['query']),
     'getSiteOwner' : IDL.Func([], [IDL.Opt(IDL.Principal)], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isOwner' : IDL.Func([], [IDL.Bool], ['query']),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'updateOrderStatus' : IDL.Func([OrderId, OrderStatus], [], []),
   });
 };
