@@ -1,2 +1,3 @@
-# professional-website-to-sell-binance-gift-cards-usdt-500-50-000-with-bitcoin-pay
-Exported from Caffeine project: Professional website to sell Binance Gift Cards (USDT $500–$50,000) with Bitcoin payments
+## Professional website to sell Binance Gift Cards (USDT $500–$50,000) with Bitcoin payments
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

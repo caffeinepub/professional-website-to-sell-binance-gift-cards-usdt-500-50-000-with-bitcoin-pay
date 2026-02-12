@@ -1,0 +1,168 @@
+{
+  "kind": "build_request",
+  "title": "Professional website to sell Binance Gift Cards (USDT $500–$50,000) with Bitcoin payments",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Create a responsive, professional marketing + storefront experience for selling Binance Gift Cards with fixed USDT denominations from $500 up to $50,000.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Janu mjhy 1 Website chahye Jaha Binance Gift Cards sell krny hain",
+          "Binance Gift Cards ki Value $500 sy le kr 50,000$ in uSDT ha"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Homepage clearly states the product (Binance Gift Cards) and shows the available denomination range ($500–$50,000 USDT).",
+        "Storefront works well on mobile and desktop with consistent spacing, typography, and layout.",
+        "All user-facing text is in English."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement a product catalog UI that lets users browse and select a gift card denomination and quantity, and calculates totals in USDT.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Binance Gift Cards ki Value $500 sy le kr 50,000$ in uSDT ha"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Users can select a denomination (within $500–$50,000 USDT) and quantity.",
+        "UI shows computed totals in USDT (denomination × quantity).",
+        "Selections persist through navigation to checkout (within the same session)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement a checkout flow that collects buyer contact details and presents Bitcoin payment instructions (Bitcoin payment acceptance) for the order.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "or payment Bitcoin mai leni hai"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Checkout collects at least: buyer name and an email (or other single contact field) and an optional note.",
+        "Checkout shows: amount due (in USDT), a Bitcoin payment address, and an order reference/ID to include with payment.",
+        "Order is created in the backend and can be retrieved by its ID from the frontend.",
+        "No third-party payment provider integration is required for checkout to function."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Create backend order storage and basic order status tracking (e.g., Pending Payment, Paid, Delivered, Cancelled) in the single Motoko main actor.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "mjhy 1 professional website bna de",
+          "or payment Bitcoin mai leni hai"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes methods to: create an order, fetch an order by ID, and list orders (for basic administration).",
+        "Each order stores: denomination (USDT), quantity, total (USDT), buyer contact, status, and timestamps.",
+        "Default status on creation is Pending Payment."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Add a minimal admin screen (no external auth required) to review orders and update order status manually (e.g., mark as Paid/Delivered) after verifying Bitcoin payment off-app.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "or payment Bitcoin mai leni hai"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin screen lists recent orders with key fields (order ID, total USDT, status, created time).",
+        "Admin can open an order detail view and change status.",
+        "Status changes persist and are visible to the buyer when they view the order by ID."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Apply a coherent, distinctive visual theme for a professional crypto storefront (avoid blue/purple), including consistent color palette, typography, button styles, and section layouts.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "mjhy 1 professional website bna de"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Theme is applied consistently across homepage, catalog, checkout, and admin pages.",
+        "Primary colors are not blue/purple unless explicitly requested later.",
+        "UI uses Tailwind + existing UI components via composition (no edits to immutable UI component sources)."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Add generated static image assets and render them in the UI from frontend/public/assets/generated (do not serve images via the backend).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "mjhy 1 professional website bna de"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Generated images exist under frontend/public/assets/generated with the specified filenames.",
+        "Homepage and/or header uses the logo and hero image.",
+        "Catalog uses the product illustration asset in a visually consistent way."
+      ]
+    }
+  ],
+  "constraints": [
+    "Use a single Motoko actor for all backend logic (no additional backend services).",
+    "Do not modify any frontend files under the immutable paths listed in SYSTEM_CONTEXT; compose them instead.",
+    "Do not implement third-party authentication providers; Internet Identity is the only supported auth option if authentication is later needed.",
+    "Do not implement automatic on-chain Bitcoin payment verification; payment confirmation must be manual unless the user later requests and constraints allow."
+  ],
+  "nonGoals": [
+    "Full e-commerce features like discount codes, shipping, returns, or customer accounts (unless requested later).",
+    "Automatic Bitcoin exchange-rate conversion between USDT and BTC.",
+    "Integration with Binance APIs or gift card inventory automation.",
+    "Real-time payment detection, WebSockets, or push notifications."
+  ],
+  "imageRequirements": {
+    "required": [
+      "Minimalist geometric crypto storefront logo (logo-giftcards.dim_512x512.png)",
+      "Wide hero banner with abstract fintech shapes and warm dark theme (hero-giftcards.dim_1600x600.png)",
+      "Simple gift card product illustration, clean vector style (product-giftcard-illustration.dim_800x800.png)"
+    ],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [
+      "Use English for all user-facing text in the app."
+    ],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

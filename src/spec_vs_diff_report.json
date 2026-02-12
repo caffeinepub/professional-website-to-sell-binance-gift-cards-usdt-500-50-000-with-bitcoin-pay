@@ -1,0 +1,79 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-12T08:40:26.267Z",
+  "summary": "Frontend adds a multi-page storefront (home, catalog, checkout, order status, admin) with session-persisted cart selection and manual status updates via backend. Backend adds basic order CRUD/status methods in a single Motoko actor, but order data model lacks required commerce fields (denomination/quantity/total/timestamps). Admin UI and backend do not surface required total USDT and created time, and frontend includes an unrequested USDT→BTC conversion estimate and Internet Identity integration scaffolding.",
+  "missing_requirements": [
+    {
+      "id": "REQ-4",
+      "requirement": "Each order stores: denomination (USDT), quantity, total (USDT), buyer contact, status, and timestamps; default status Pending Payment.",
+      "reason": "Backend Order type only includes id, buyerContact, btcPaymentAddress, amountInBitcoin, status; there are no denomination/quantity/total fields and no timestamps. createOrder also does not accept these fields.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Backend exposes methods to create an order, fetch an order by ID, and list orders (for basic administration).",
+      "reason": "Methods exist, but the stored Order shape is missing required fields (denomination/quantity/total/timestamps), so the exposed API does not meet the required data contract for admin and buyer views.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/hooks/useQueries.ts"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Admin screen lists recent orders with key fields (order ID, total USDT, status, created time).",
+      "reason": "Admin list table shows Order ID, Contact, BTC Amount, Status, Actions; it does not show total USDT or created time.",
+      "evidence": [
+        "frontend/src/pages/admin/AdminOrdersPage.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Automatic/derived USDT→BTC amount calculation shown during checkout (btcAmount computed from USDT total using a fixed rate).",
+      "reason": "BuildRequest explicitly lists \"Automatic Bitcoin exchange-rate conversion between USDT and BTC\" as a non-goal; diff implements a conversion estimate `(cartSession.total / 45000).toFixed(8)`.",
+      "evidence": [
+        "frontend/src/pages/CheckoutPage.tsx"
+      ]
+    },
+    {
+      "description": "Internet Identity authentication integration scaffolding (provider + actor creation dependent on identity).",
+      "reason": "Authentication was not requested (admin explicitly requires no external auth). Adding Internet Identity login/provider and identity-aware actor creation goes beyond requested scope.",
+      "evidence": [
+        "frontend/src/main.tsx",
+        "frontend/src/hooks/useInternetIdentity.ts",
+        "frontend/src/hooks/useActor.ts"
+      ]
+    }
+  ],
+  "confidence": 0.74,
+  "changed_files": [
+    "all_files_summary.json",
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/index.css",
+    "frontend/index.html",
+    "frontend/src/App.tsx",
+    "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx",
+    "frontend/src/components/layout/SiteLayout.tsx",
+    "frontend/src/components/storefront/DenominationRangeCallout.tsx",
+    "frontend/src/components/storefront/DenominationSelector.tsx",
+    "frontend/src/components/storefront/QuantitySelector.tsx",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/hooks/useInternetIdentity.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/index.css",
+    "frontend/src/main.tsx",
+    "frontend/src/pages/CatalogPage.tsx",
+    "frontend/src/pages/CheckoutPage.tsx",
+    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/pages/OrderStatusPage.tsx",
+    "frontend/src/pages/admin/AdminOrderDetailPage.tsx",
+    "frontend/src/pages/admin/AdminOrdersPage.tsx",
+    "frontend/src/state/cartSession.ts",
+    "frontend/tailwind.config.js",
+    "project_state.json"
+  ]
+}

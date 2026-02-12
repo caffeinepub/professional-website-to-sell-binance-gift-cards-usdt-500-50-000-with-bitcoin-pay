@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Build a professional website to sell Binance Gift Cards (USDT values $500–$50,000) and accept payments in Bitcoin.",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Minimalist geometric crypto storefront logo (logo-giftcards.dim_512x512.png)\n- Wide hero banner with abstract fintech shapes and warm dark theme (hero-giftcards.dim_1600x600.png)\n- Simple gift card product illustration, clean vector style (product-giftcard-illustration.dim_800x800.png)",
+  "existing_features": [
+    {
+      "id": "feature-create-a-responsive-professional-marketing-storefront-experience-for-selling-binance-gift-cards-with-fixed-usdt-denominations-from-500-up-to-50-000",
+      "title": "Create a responsive, professional marketing + storefront experience for selling Binance Gift Cards with fixed USDT denominations from $500 up to $50,000.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-product-catalog-ui-that-lets-users-browse-and-select-a-gift-card-denomination-and-quantity-and-calculates-totals-in-usdt",
+      "title": "Implement a product catalog UI that lets users browse and select a gift card denomination and quantity, and calculates totals in USDT.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-checkout-flow-that-collects-buyer-contact-details-and-presents-bitcoin-payment-instructions-bitcoin-payment-acceptance-for-the-order",
+      "title": "Implement a checkout flow that collects buyer contact details and presents Bitcoin payment instructions (Bitcoin payment acceptance) for the order.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-minimal-admin-screen-no-external-auth-required-to-review-orders-and-update-order-status-manually-e-g-mark-as-paid-delivered-after-verifying-bitcoin-payment-off-app",
+      "title": "Add a minimal admin screen (no external auth required) to review orders and update order status manually (e.g., mark as Paid/Delivered) after verifying Bitcoin payment off-app.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-coherent-distinctive-visual-theme-for-a-professional-crypto-storefront-avoid-blue-purple-including-consistent-color-palette-typography-button-styles-and-section-layouts",
+      "title": "Apply a coherent, distinctive visual theme for a professional crypto storefront (avoid blue/purple), including consistent color palette, typography, button styles, and section layouts.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-generated-static-image-assets-and-render-them-in-the-ui-from-frontend-public-assets-generated-do-not-serve-images-via-the-backend",
+      "title": "Add generated static image assets and render them in the UI from frontend/public/assets/generated (do not serve images via the backend).",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create a professional e-commerce website for selling Binance Gift Cards (USDT denominations $500–$50,000) with Bitcoin payment acceptance.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Create backend order storage and basic order status tracking (e.g., Pending Payment, Paid, Delivered, Cancelled) in the single Motoko main actor.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Professional website to sell Binance Gift Cards (USDT $500–$50,000) with Bitcoin payments",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

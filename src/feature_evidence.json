@@ -1,0 +1,130 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-create-a-responsive-professional-marketing-storefront-experience-for-selling-binance-gift-cards-with-fixed-usdt-denominations-from-500-up-to-50-000",
+      "featureTitle": "Create a responsive, professional marketing + storefront experience for selling Binance Gift Cards with fixed USDT denominations from $500 up to $50,000.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/layout/SiteLayout.tsx",
+        "frontend/src/components/storefront/DenominationRangeCallout.tsx",
+        "frontend/src/pages/HomePage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-product-catalog-ui-that-lets-users-browse-and-select-a-gift-card-denomination-and-quantity-and-calculates-totals-in-usdt",
+      "featureTitle": "Implement a product catalog UI that lets users browse and select a gift card denomination and quantity, and calculates totals in USDT.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/storefront/DenominationSelector.tsx",
+        "frontend/src/components/storefront/QuantitySelector.tsx",
+        "frontend/src/pages/CatalogPage.tsx",
+        "frontend/src/state/cartSession.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-checkout-flow-that-collects-buyer-contact-details-and-presents-bitcoin-payment-instructions-bitcoin-payment-acceptance-for-the-order",
+      "featureTitle": "Implement a checkout flow that collects buyer contact details and presents Bitcoin payment instructions (Bitcoin payment acceptance) for the order.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx",
+        "frontend/src/pages/CheckoutPage.tsx",
+        "frontend/src/pages/OrderStatusPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-minimal-admin-screen-no-external-auth-required-to-review-orders-and-update-order-status-manually-e-g-mark-as-paid-delivered-after-verifying-bitcoin-payment-off-app",
+      "featureTitle": "Add a minimal admin screen (no external auth required) to review orders and update order status manually (e.g., mark as Paid/Delivered) after verifying Bitcoin payment off-app.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/OrderStatusPage.tsx",
+        "frontend/src/pages/admin/AdminOrderDetailPage.tsx",
+        "frontend/src/pages/admin/AdminOrdersPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-apply-a-coherent-distinctive-visual-theme-for-a-professional-crypto-storefront-avoid-blue-purple-including-consistent-color-palette-typography-button-styles-and-section-layouts",
+      "featureTitle": "Apply a coherent, distinctive visual theme for a professional crypto storefront (avoid blue/purple), including consistent color palette, typography, button styles, and section layouts.",
+      "files": [
+        "frontend/src/components/layout/SiteLayout.tsx",
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-generated-static-image-assets-and-render-them-in-the-ui-from-frontend-public-assets-generated-do-not-serve-images-via-the-backend",
+      "featureTitle": "Add generated static image assets and render them in the UI from frontend/public/assets/generated (do not serve images via the backend).",
+      "files": [
+        "frontend/src/components/layout/SiteLayout.tsx",
+        "frontend/src/pages/CatalogPage.tsx",
+        "frontend/src/pages/HomePage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
