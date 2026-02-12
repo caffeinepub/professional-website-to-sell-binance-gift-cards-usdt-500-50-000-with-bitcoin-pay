@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-hardcoded-bitcoin-payment-address-used-during-checkout-so-that-newly-created-orders-use-and-display-the-btc-address-12usspmu49fnnfm7vuogkvkot47js5snri-instead-of-the-current-1a1-address",
-      "featureTitle": "Update the hardcoded Bitcoin payment address used during checkout so that newly created orders use and display the BTC address `12usSpmU49fnNfm7VuoGkvkoT47jS5snri` instead of the current `1A1...` address.",
+      "featureId": "feature-identify-and-fix-the-root-cause-of-the-production-runtime-error-that-causes-the-app-to-render-only-the-global-something-went-wrong-fallback-on-initial-page-load-e-g-on-the-root-route",
+      "featureTitle": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (e.g., on the root route).",
       "files": [
-        "frontend/src/pages/CheckoutPage.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/pages/GlobalErrorFallbackPage.tsx",
+        "frontend/src/utils/errors.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -17,6 +19,47 @@
       ],
       "testIds": [
         "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-harden-the-global-error-fallback-implementation-so-it-cannot-itself-cause-crashes-in-production-builds-remove-replace-any-non-browser-safe-environment-checks-such-as-process-env-node-env-and-ensure-error-detail-rendering-is-guarded-all-user-facing-text-in-the-fallback-must-remain-in-english",
+      "featureTitle": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds (remove/replace any non-browser-safe environment checks such as `process.env.NODE_ENV` and ensure error-detail rendering is guarded). All user-facing text in the fallback must remain in English.",
+      "files": [
+        "frontend/src/components/error/GlobalErrorBoundary.tsx",
+        "frontend/src/pages/GlobalErrorFallbackPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-app-shell-sitelayout-and-initial-routing-can-render-even-when-backend-connectivity-actor-creation-or-initial-react-query-calls-fail-in-particular-failures-in-non-critical-queries-used-by-layout-components-e-g-owner-admin-checks-and-recent-orders-dropdown-data-must-not-crash-the-entire-app",
+      "featureTitle": "Ensure the app shell (SiteLayout) and initial routing can render even when backend connectivity/actor creation or initial React Query calls fail. In particular, failures in non-critical queries used by layout components (e.g., owner/admin checks and recent-orders dropdown data) must not crash the entire app.",
+      "files": [
+        "frontend/src/components/layout/SiteLayout.tsx",
+        "frontend/src/components/orders/RecentOrdersMenu.tsx",
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

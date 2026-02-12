@@ -4,6 +4,7 @@ import { Package, Shield, Search } from 'lucide-react';
 import { SiBitcoin } from 'react-icons/si';
 import { useInternetIdentity } from '@/hooks/useInternetIdentity';
 import { useIsOwner } from '@/hooks/useQueries';
+import { useActor } from '@/hooks/useActor';
 import { RecentOrdersMenu } from '@/components/orders/RecentOrdersMenu';
 
 interface SiteLayoutProps {
@@ -13,11 +14,15 @@ interface SiteLayoutProps {
 export function SiteLayout({ children }: SiteLayoutProps) {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
-  const { data: isOwner } = useIsOwner();
+  const { actor, isFetching } = useActor();
+  const { data: isOwner, isError: isOwnerError } = useIsOwner();
   const currentYear = new Date().getFullYear();
   const appIdentifier = typeof window !== 'undefined' ? window.location.hostname : 'binance-giftcards';
 
-  const showAdminLink = !!identity && isOwner;
+  // Only show admin link if we can definitively confirm ownership
+  // Hide on error or when actor is not ready
+  const isActorReady = !!actor && !isFetching;
+  const showAdminLink = !!identity && isActorReady && !isOwnerError && isOwner === true;
 
   return (
     <div className="flex min-h-screen flex-col">

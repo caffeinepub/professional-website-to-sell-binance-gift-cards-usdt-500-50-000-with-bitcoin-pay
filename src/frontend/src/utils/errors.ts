@@ -2,6 +2,11 @@
  * Safely convert unknown error values into user-friendly English messages
  */
 export function formatErrorMessage(error: unknown): string {
+  // Handle null/undefined
+  if (error === null || error === undefined) {
+    return 'An unexpected error occurred. Please try again.';
+  }
+
   // Handle Error instances
   if (error instanceof Error) {
     return error.message;
@@ -13,7 +18,7 @@ export function formatErrorMessage(error: unknown): string {
   }
   
   // Handle objects with message property
-  if (error && typeof error === 'object' && 'message' in error) {
+  if (typeof error === 'object' && 'message' in error) {
     const msg = (error as { message: unknown }).message;
     if (typeof msg === 'string') {
       return msg;
@@ -25,12 +30,24 @@ export function formatErrorMessage(error: unknown): string {
 }
 
 /**
+ * Normalize any thrown value into an Error-like object
+ * Safe to use in error boundaries and catch blocks
+ */
+export function normalizeError(error: unknown): { message: string; originalError: unknown } {
+  return {
+    message: formatErrorMessage(error),
+    originalError: error,
+  };
+}
+
+/**
  * Check if an error indicates the actor is not ready
  */
 export function isActorNotReadyError(error: unknown): boolean {
   const message = formatErrorMessage(error).toLowerCase();
   return message.includes('actor not initialized') || 
          message.includes('actor not available') ||
+         message.includes('connection not ready') ||
          message.includes('not ready');
 }
 
@@ -58,10 +75,27 @@ export function isAuthorizationError(error: unknown): boolean {
 }
 
 /**
+ * Check if an error is a network/connectivity error
+ */
+export function isConnectivityError(error: unknown): boolean {
+  const message = formatErrorMessage(error).toLowerCase();
+  return message.includes('network') ||
+         message.includes('fetch') ||
+         message.includes('connection') ||
+         message.includes('timeout') ||
+         isActorNotReadyError(error);
+}
+
+/**
  * Convert backend errors to user-friendly messages
  */
 export function formatBackendError(error: unknown): string {
   const message = formatErrorMessage(error);
+  
+  // Map connectivity errors first
+  if (isConnectivityError(error)) {
+    return 'Connection not ready. Please wait a moment and try again.';
+  }
   
   // Map ownership-related errors
   if (isOwnershipAlreadyClaimedError(error)) {
@@ -85,10 +119,6 @@ export function formatBackendError(error: unknown): string {
   
   if (message.includes('does not exist')) {
     return 'The requested item was not found.';
-  }
-  
-  if (isActorNotReadyError(error)) {
-    return 'Connection to the backend is not ready. Please wait a moment and try again.';
   }
   
   // Return the original message if no mapping found

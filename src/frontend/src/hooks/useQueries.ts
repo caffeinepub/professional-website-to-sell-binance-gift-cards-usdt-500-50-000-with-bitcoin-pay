@@ -1,11 +1,11 @@
-import { useQuery, useMutation, useQueryClient, useQueries } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { type Order, type OrderId, type OrderStatus, type ContactMessage } from '@/backend';
 import { type Principal } from '@dfinity/principal';
 import { formatBackendError } from '@/utils/errors';
 
 export function useGetOrder(orderId: OrderId) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<Order>({
     queryKey: ['order', orderId],
@@ -13,20 +13,26 @@ export function useGetOrder(orderId: OrderId) {
       if (!actor) throw new Error('Actor not initialized');
       return actor.getOrder(orderId);
     },
-    enabled: !!actor && !isFetching && !!orderId,
+    enabled: !!actor && !actorFetching && !!orderId,
+    retry: 1,
   });
 }
 
 export function useGetAllOrders() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<Order[]>({
     queryKey: ['orders'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAllOrders();
+      try {
+        return await actor.getAllOrders();
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        return [];
+      }
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
     retry: false,
   });
 }
@@ -125,67 +131,82 @@ export function useCreateContactMessage() {
 }
 
 export function useGetContactMessages() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<ContactMessage[]>({
     queryKey: ['contactMessages'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getContactMessages();
+      try {
+        return await actor.getContactMessages();
+      } catch (error) {
+        console.error('Failed to fetch contact messages:', error);
+        return [];
+      }
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
     retry: false,
   });
 }
 
 export function useIsCallerAdmin() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<boolean>({
     queryKey: ['isCallerAdmin'],
     queryFn: async () => {
       if (!actor) return false;
-      return actor.isCallerAdmin();
+      try {
+        return await actor.isCallerAdmin();
+      } catch (error) {
+        console.error('Failed to check admin status:', error);
+        return false;
+      }
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
     retry: false,
   });
 }
 
 export function useIsOwner() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<boolean>({
     queryKey: ['isOwner'],
     queryFn: async () => {
       if (!actor) return false;
-      return actor.isOwner();
+      try {
+        return await actor.isOwner();
+      } catch (error) {
+        console.error('Failed to check owner status:', error);
+        return false;
+      }
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
     retry: false,
   });
 }
 
 export function useGetSiteOwner() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<Principal | null>({
     queryKey: ['siteOwner'],
     queryFn: async () => {
       if (!actor) return null;
-      const result = await actor.getSiteOwner();
-      // Normalize the optional result - handle both null and empty array cases
-      if (result === null || result === undefined) {
+      try {
+        const result = await actor.getSiteOwner();
+        // Normalize the optional result - handle both null and empty array cases
+        if (result === null || result === undefined) {
+          return null;
+        }
+        return result as Principal;
+      } catch (error) {
+        console.error('Failed to fetch site owner:', error);
         return null;
       }
-      // If it's an array-like structure (from Candid optional encoding)
-      if (Array.isArray(result)) {
-        return result.length > 0 ? result[0] : null;
-      }
-      // Otherwise return as-is (should be a Principal)
-      return result;
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
     retry: false,
   });
 }
@@ -197,7 +218,7 @@ export function useClaimSiteOwner() {
   return useMutation({
     mutationFn: async () => {
       if (!actor) {
-        throw new Error('Actor not initialized. Please wait a moment and try again.');
+        throw new Error('Connection not ready. Please wait a moment and try again.');
       }
       
       try {
@@ -206,19 +227,10 @@ export function useClaimSiteOwner() {
         throw new Error(formatBackendError(error));
       }
     },
-    onSuccess: async () => {
-      // Invalidate and refetch all admin-related queries to refresh UI immediately
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['siteOwner'] }),
-        queryClient.invalidateQueries({ queryKey: ['isOwner'] }),
-        queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] }),
-      ]);
-      
-      // Force refetch to ensure fresh data
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: ['siteOwner'] }),
-        queryClient.refetchQueries({ queryKey: ['isOwner'] }),
-      ]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['siteOwner'] });
+      queryClient.invalidateQueries({ queryKey: ['isOwner'] });
+      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
     },
   });
 }

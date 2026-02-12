@@ -34,8 +34,8 @@ export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     }
   }, [claimOwnerMutation.isSuccess, isOwner, navigate]);
 
-  // Show loading state while checking authentication or owner status
-  if (isLoggingIn || (isAuthenticated && (isCheckingOwner || !isOwnerFetched))) {
+  // Show loading state while logging in or while authenticated and checking owner status
+  if (isLoggingIn || (isAuthenticated && isCheckingOwner)) {
     return (
       <div className="container py-12 flex justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -95,7 +95,7 @@ export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     );
   }
 
-  // Authenticated - check owner status
+  // Authenticated - check owner status (only wait for isOwnerFetched, not isCheckingOwner)
   if (isAuthenticated && isOwnerFetched) {
     // User is the owner - grant access
     if (isOwner) {
@@ -103,7 +103,7 @@ export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     }
 
     // Still loading site owner info
-    if (isCheckingSiteOwner || !isSiteOwnerFetched) {
+    if (isCheckingSiteOwner) {
       return (
         <div className="container py-12 flex justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />

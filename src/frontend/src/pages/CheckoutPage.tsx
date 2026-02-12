@@ -27,7 +27,7 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const cartSession = getCartSession();
   const createOrderMutation = useCreateOrder();
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor } = useActor();
   const { effectiveRate } = useBtcUsdtRate();
 
   const [buyerName, setBuyerName] = useState('');
@@ -36,8 +36,8 @@ export default function CheckoutPage() {
   const [orderSnapshot, setOrderSnapshot] = useState<OrderSnapshot | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
-  // Check if actor is ready
-  const isActorReady = !!actor && !actorFetching;
+  // Check if actor is ready - only require actor instance, not isFetching
+  const isActorReady = !!actor;
 
   // Clear error when user edits form
   const handleInputChange = (setter: (value: string) => void) => (value: string) => {
@@ -220,12 +220,12 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                {/* Show actor not ready warning */}
+                {/* Show actor not ready warning only when actor is truly not available */}
                 {!isActorReady && (
                   <Alert>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <AlertDescription>
-                      Connecting to the backend... Please wait a moment before submitting.
+                      Connecting to the backend... Please wait a moment.
                     </AlertDescription>
                   </Alert>
                 )}

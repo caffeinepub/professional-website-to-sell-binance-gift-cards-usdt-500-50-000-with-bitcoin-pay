@@ -14,9 +14,11 @@ import { useOrderHistory } from '@/hooks/useOrderHistory';
 import { useOrderHistoryDetails } from '@/hooks/useOrderHistoryDetails';
 import { getSimplifiedOrderStatus, getStatusBadgeVariant } from '@/utils/orderStatus';
 import { OrderStatus } from '@/backend';
+import { useActor } from '@/hooks/useActor';
 
 export function RecentOrdersMenu() {
   const { orders: historyEntries, isLoading: historyLoading, hasOrders } = useOrderHistory();
+  const { actor, isFetching } = useActor();
   
   // Get details for the first 5 recent orders
   const recentOrderIds = historyEntries.slice(0, 5).map((e) => e.orderId);
@@ -24,6 +26,17 @@ export function RecentOrdersMenu() {
 
   // Create a map for quick lookup
   const orderDetailsMap = new Map(orderDetails.map((o) => [o.id, o]));
+
+  // If actor is not ready, show a disabled state
+  const isActorReady = !!actor && !isFetching;
+  if (!isActorReady) {
+    return (
+      <Button variant="outline" className="gap-2" disabled>
+        <ShoppingCart className="h-4 w-4" />
+        <span className="hidden sm:inline">Orders</span>
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>
@@ -105,7 +118,6 @@ export function RecentOrdersMenu() {
                 className="flex items-center justify-center gap-2 cursor-pointer font-medium"
               >
                 View All Orders
-                <ExternalLink className="h-3 w-3" />
               </Link>
             </DropdownMenuItem>
           </>

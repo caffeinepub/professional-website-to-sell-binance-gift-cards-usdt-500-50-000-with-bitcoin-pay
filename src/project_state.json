@@ -4,28 +4,37 @@
   "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
-    "BTC payment address shown for “Chez Jb” needs to be updated to 12usSpmU49fnNfm7VuoGkvkoT47jS5snri (currently shows old 1A1.. address)."
+    "App/site not loading correctly; user reports it shows an error (possibly triggering a front-end error fallback like “Something went wrong”)."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-hardcoded-bitcoin-payment-address-used-during-checkout-so-that-newly-created-orders-use-and-display-the-btc-address-12usspmu49fnnfm7vuogkvkot47js5snri-instead-of-the-current-1a1-address",
-      "title": "Update the hardcoded Bitcoin payment address used during checkout so that newly created orders use and display the BTC address `12usSpmU49fnNfm7VuoGkvkoT47jS5snri` instead of the current `1A1...` address.",
+      "id": "feature-identify-and-fix-the-root-cause-of-the-production-runtime-error-that-causes-the-app-to-render-only-the-global-something-went-wrong-fallback-on-initial-page-load-e-g-on-the-root-route",
+      "title": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (e.g., on the root route).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
-    }
-  ],
-  "new_feature_requests": [
+    },
     {
-      "id": "AR-1",
-      "summary": "Replace the displayed BTC payment address for “Chez Jb” (currently showing 1A1.. style) with 12usSpmU49fnNfm7VuoGkvkoT47jS5snri",
-      "reqIds": [],
-      "status": "pending"
+      "id": "feature-harden-the-global-error-fallback-implementation-so-it-cannot-itself-cause-crashes-in-production-builds-remove-replace-any-non-browser-safe-environment-checks-such-as-process-env-node-env-and-ensure-error-detail-rendering-is-guarded-all-user-facing-text-in-the-fallback-must-remain-in-english",
+      "title": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds (remove/replace any non-browser-safe environment checks such as `process.env.NODE_ENV` and ensure error-detail rendering is guarded). All user-facing text in the fallback must remain in English.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-app-shell-sitelayout-and-initial-routing-can-render-even-when-backend-connectivity-actor-creation-or-initial-react-query-calls-fail-in-particular-failures-in-non-critical-queries-used-by-layout-components-e-g-owner-admin-checks-and-recent-orders-dropdown-data-must-not-crash-the-entire-app",
+      "title": "Ensure the app shell (SiteLayout) and initial routing can render even when backend connectivity/actor creation or initial React Query calls fail. In particular, failures in non-critical queries used by layout components (e.g., owner/admin checks and recent-orders dropdown data) must not crash the entire app.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
     }
   ],
-  "projectName": "Replace displayed Bitcoin payment address with new BTC address",
+  "new_feature_requests": [],
+  "projectName": "Fix production crash showing “Something went wrong” on initial load",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

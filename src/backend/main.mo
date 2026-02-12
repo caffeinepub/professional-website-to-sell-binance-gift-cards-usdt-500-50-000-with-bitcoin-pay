@@ -4,7 +4,9 @@ import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   var siteOwner : ?Principal = null;
   let accessControlState = AccessControl.initState();
@@ -113,7 +115,9 @@ actor {
   public query ({ caller }) func getOrder(id : OrderId) : async Order {
     // Public function - anyone can view order details (needed for payment confirmation)
     switch (orders.get(id)) {
-      case (null) { Runtime.trap("Order does not exist") };
+      case (null) {
+        Runtime.trap("Order does not exist");
+      };
       case (?order) { order };
     };
   };

@@ -1,37 +1,84 @@
 {
   "kind": "build_request",
-  "title": "Replace displayed Bitcoin payment address with new BTC address",
-  "priority": "normal",
+  "title": "Fix production crash showing “Something went wrong” on initial load",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the hardcoded Bitcoin payment address used during checkout so that newly created orders use and display the BTC address `12usSpmU49fnNfm7VuoGkvkoT47jS5snri` instead of the current `1A1...` address.",
-      "target": "frontend",
+      "text": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (e.g., on the root route).",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-4"
+          "recent-messages"
         ],
         "quotes": [
-          "1 or Chez Jb Payment BTC Address Show hota 1A1.. wala uski jaga ye Wala Replace krdu\n\n12usSpmU49fnNfm7VuoGkvkoT47jS5snri"
+          "Ye arha error ab"
         ]
       },
       "acceptanceCriteria": [
-        "In frontend/src/pages/CheckoutPage.tsx, the fixed `btcAddress` value used when submitting `createOrder` is changed to `12usSpmU49fnNfm7VuoGkvkoT47jS5snri`.",
-        "After placing a new order, the checkout success screen’s “Bitcoin Address” field shows `12usSpmU49fnNfm7VuoGkvkoT47jS5snri`.",
-        "For a newly created order, the order status page shows the same updated BTC address (as stored on the order)."
+        "Opening the production URL loads the Home page UI (header + hero section) instead of the global error fallback.",
+        "No uncaught exceptions appear in the browser console during initial load on mobile Safari/Chrome.",
+        "The fix is compatible with a production build (no dev-only globals or assumptions that break in production)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds (remove/replace any non-browser-safe environment checks such as `process.env.NODE_ENV` and ensure error-detail rendering is guarded). All user-facing text in the fallback must remain in English.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "Ye arha error ab"
+        ]
+      },
+      "acceptanceCriteria": [
+        "In a production build, the global error fallback page renders without referencing `process` (no \"process is not defined\" / similar errors).",
+        "In development mode, the fallback can optionally show the error message; in production, it must not expose internal error details.",
+        "The fallback continues to provide working “Reload page” and “Go to Home” actions."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Ensure the app shell (SiteLayout) and initial routing can render even when backend connectivity/actor creation or initial React Query calls fail. In particular, failures in non-critical queries used by layout components (e.g., owner/admin checks and recent-orders dropdown data) must not crash the entire app.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "O yar tu khud check kr app open kr k.. k run kr rhi k error de rhi"
+        ]
+      },
+      "acceptanceCriteria": [
+        "If the backend actor is not ready or any layout-level query fails, the header/footer still render and navigation works; non-critical UI elements degrade gracefully (e.g., Admin link hidden, recent orders shows \"Unable to load\" rather than crashing).",
+        "No route-level errors are thrown solely due to layout-level hooks failing (e.g., `useIsOwner`, recent orders detail fetching).",
+        "Reloading the page after a transient connectivity issue successfully renders the app without requiring a hard refresh beyond the provided “Reload page” action."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui (immutable paths).",
-    "Keep the backend single-actor architecture (all Motoko logic remains in backend/main.mo)."
+    "Do not edit files under frontend/src/components/ui (Shadcn components are read-only and must be composed, not modified).",
+    "Respect the single-actor Motoko backend architecture (all backend logic remains in backend/main.mo; add backend/migration.mo only if state migration is required).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Do not change order status logic, tracking pages, or any other checkout fields beyond the BTC address replacement.",
-    "Do not attempt to retroactively change BTC addresses for orders that were already created with the old address."
+    "Adding new product features unrelated to stabilizing initial load (e.g., new payment methods, new pages, redesign of catalog/checkout flows).",
+    "Introducing third-party auth providers or external databases/services."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

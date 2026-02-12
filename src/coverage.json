@@ -1,34 +1,75 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T19:36:09.502Z",
+  "generatedAt": "2026-02-12T20:22:51.587Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the hardcoded Bitcoin payment address used during checkout so that newly created orders use and display the BTC address `12usSpmU49fnNfm7VuoGkvkoT47jS5snri` instead of the current `1A1...` address.",
+        "summary": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (e.g., on the root route).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/CheckoutPage.tsx"
+          "frontend/src/pages/GlobalErrorFallbackPage.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/utils/errors.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/CheckoutPage.tsx"
+          "frontend/src/pages/GlobalErrorFallbackPage.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/utils/errors.ts"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds (remove/replace any non-browser-safe environment checks such as `process.env.NODE_ENV` and ensure error-detail rendering is guarded). All user-facing text in the fallback must remain in English.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/GlobalErrorFallbackPage.tsx",
+          "frontend/src/components/error/GlobalErrorBoundary.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/GlobalErrorFallbackPage.tsx",
+          "frontend/src/components/error/GlobalErrorBoundary.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Ensure the app shell (SiteLayout) and initial routing can render even when backend connectivity/actor creation or initial React Query calls fail. In particular, failures in non-critical queries used by layout components (e.g., owner/admin checks and recent-orders dropdown data) must not crash the entire app.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useActor.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/layout/SiteLayout.tsx",
+          "frontend/src/components/orders/RecentOrdersMenu.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/layout/SiteLayout.tsx",
+          "frontend/src/components/orders/RecentOrdersMenu.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/CheckoutPage.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/components/error/GlobalErrorBoundary.tsx",
+    "frontend/src/components/layout/SiteLayout.tsx",
+    "frontend/src/components/orders/RecentOrdersMenu.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/GlobalErrorFallbackPage.tsx",
+    "frontend/src/utils/errors.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,21 +1,83 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update checkout BTC payment address to new hardcoded value",
+  "title": "Stabilize initial production load and harden global error handling",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Replace the hardcoded BTC payment address used during checkout so new orders store and display the new address across checkout success and order status views.",
+      "summary": "Fix the production runtime error causing initial load to fall back to the global “Something went wrong” screen.",
       "acceptanceCriteria": [
-        "In frontend/src/pages/CheckoutPage.tsx, the fixed `btcAddress` value used when submitting `createOrder` is changed to `12usSpmU49fnNfm7VuoGkvkoT47jS5snri`.",
-        "After placing a new order, the checkout success screen’s “Bitcoin Address” field shows `12usSpmU49fnNfm7VuoGkvkoT47jS5snri`.",
-        "For a newly created order, the order status page shows the same updated BTC address (as stored on the order)."
+        "Opening the production URL loads the Home page UI (header + hero section) instead of the global error fallback.",
+        "No uncaught exceptions appear in the browser console during initial load on mobile Safari/Chrome.",
+        "The fix is compatible with a production build (no dev-only globals or assumptions that break in production)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/CheckoutPage.tsx",
+          "path": "frontend/src/pages/GlobalErrorFallbackPage.tsx",
           "operation": "modify",
-          "description": "Update the hardcoded `btcAddress` constant used to create orders from the old `1A1...` value to `12usSpmU49fnNfm7VuoGkvkoT47jS5snri`, ensuring the value passed as `btcPaymentAddress` to `useCreateOrder().mutateAsync(...)` and the captured `orderSnapshot.btcAddress` are the new address."
+          "description": "Remove non-browser-safe runtime checks and ensure the fallback cannot throw during render (e.g., replace any Node-only env access with a browser-safe build-time flag; guard all error-detail reads). Use shadcn-ui composed components only; do not modify frontend/src/components/ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Harden TanStack Router error handling so non-Error throwables (strings/unknown) do not break the global error UI, and ensure root route initial render does not immediately cascade into repeated error rendering. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/utils/errors.ts",
+          "operation": "modify",
+          "description": "Add/adjust a safe normalization helper that converts unknown thrown values into an Error-like shape/message without throwing, and reuse it from global error rendering paths. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Harden the global error fallback so it cannot crash in production and does not leak internal error details in production.",
+      "acceptanceCriteria": [
+        "In a production build, the global error fallback page renders without referencing `process` (no \"process is not defined\" / similar errors).",
+        "In development mode, the fallback can optionally show the error message; in production, it must not expose internal error details.",
+        "The fallback continues to provide working “Reload page” and “Go to Home” actions."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/GlobalErrorFallbackPage.tsx",
+          "operation": "modify",
+          "description": "Implement a production-safe dev/prod switch using the bundler-provided mechanism (no `process` access), ensure error details are rendered only when explicitly in development, and guard against missing/invalid error objects. Keep all user-facing text in English. Use shadcn-ui components via composition only (read-only UI components constraint). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/error/GlobalErrorBoundary.tsx",
+          "operation": "modify",
+          "description": "Ensure the error boundary reset behavior is robust and never assumes an Error shape; keep console logging safe and non-blocking. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Ensure SiteLayout and initial routing render even if actor creation or layout-level React Query calls fail, degrading non-critical UI gracefully.",
+      "acceptanceCriteria": [
+        "If the backend actor is not ready or any layout-level query fails, the header/footer still render and navigation works; non-critical UI elements degrade gracefully (e.g., Admin link hidden, recent orders shows \"Unable to load\" rather than crashing).",
+        "No route-level errors are thrown solely due to layout-level hooks failing (e.g., `useIsOwner`, recent orders detail fetching).",
+        "Reloading the page after a transient connectivity issue successfully renders the app without requiring a hard refresh beyond the provided “Reload page” action."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Make actor creation resilient: catch and contain failures from actor/config initialization so the hook returns a safe state (e.g., actor null + error state) instead of propagating render-breaking exceptions. Ensure this aligns with the core-infrastructure backend connection configuration patterns. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Adjust layout-relevant query hooks (e.g., ownership/admin checks) to be strictly non-throwing and disabled when actor is unavailable; ensure they return safe defaults on failure without triggering route-level errors. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/layout/SiteLayout.tsx",
+          "operation": "modify",
+          "description": "Ensure layout never depends on successful actor/query completion to render. Keep Admin link logic strictly defensive and ensure any non-critical UI (admin link, recent orders) degrades gracefully when actor/query states are unavailable. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/orders/RecentOrdersMenu.tsx",
+          "operation": "modify",
+          "description": "Ensure the recent orders dropdown remains stable when actor is unavailable or detail queries fail (retain/ensure the “Unable to load” behavior and avoid any assumptions that can throw during render). Verify the component's usage instructions before implementing."
         }
       ]
     }

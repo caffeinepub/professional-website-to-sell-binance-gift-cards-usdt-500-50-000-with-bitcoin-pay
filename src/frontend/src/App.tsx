@@ -1,6 +1,7 @@
 import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet } from '@tanstack/react-router';
 import { SiteLayout } from './components/layout/SiteLayout';
 import { AdminRouteGuard } from './components/auth/AdminRouteGuard';
+import { GlobalErrorFallbackPage } from './pages/GlobalErrorFallbackPage';
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -14,13 +15,14 @@ import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
 import AdminContactMessagesPage from './pages/admin/AdminContactMessagesPage';
 
-// Root route with layout
+// Root route with layout and error handling
 const rootRoute = createRootRoute({
   component: () => (
     <SiteLayout>
       <Outlet />
     </SiteLayout>
   ),
+  errorComponent: ({ error, reset }) => <GlobalErrorFallbackPage error={error} reset={reset} />,
 });
 
 // Public routes
@@ -125,8 +127,11 @@ const routeTree = rootRoute.addChildren([
   adminContactMessagesRoute,
 ]);
 
-// Create router
-const router = createRouter({ routeTree });
+// Create router with error handling
+const router = createRouter({ 
+  routeTree,
+  defaultErrorComponent: ({ error, reset }) => <GlobalErrorFallbackPage error={error} reset={reset} />,
+});
 
 // Type declaration for router
 declare module '@tanstack/react-router' {
