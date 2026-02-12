@@ -1,76 +1,32 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Discount BTC payment instructions by 50% and owner-only Admin UI access (frontend-only)",
+  "title": "Frontend owner-claim UX for admin access denied",
   "requirements": [
     {
-      "id": "REQ-10",
-      "summary": "Apply a global 50% pricing rule for BTC payment instructions across Checkout success and pending-payment Order Status views.",
+      "id": "REQ-23",
+      "summary": "Enhance /admin/orders access gating to detect uninitialized site owner and allow the logged-in user to claim ownership with clear English feedback.",
       "acceptanceCriteria": [
-        "On Checkout, after clicking “Create Order & Get Payment Instructions”, the displayed BTC amount is calculated from (cartSession.total * 0.5) instead of (cartSession.total).",
-        "The BitcoinPaymentInstructions component’s “≈ $X USDT” line shows the discounted USDT amount (half of the selected total), not the original total.",
-        "On the Order Status page, when an order is in Pending Payment, the BitcoinPaymentInstructions section also shows the discounted USDT approximation (not 0).",
-        "Backend order data includes a field for the discounted USDT amount (or equivalent) so the Order Status page can display it without relying on cart/session state.",
-        "Existing (non-admin) order creation and order lookup flows continue to work without requiring login."
+        "When a logged-in user visits /admin/orders and is not recognized as admin, the UI checks whether an owner is configured in the backend.",
+        "If no owner is configured, the Access Denied screen offers an explicit English action to claim ownership (e.g., a 'Claim Admin Access' button) and shows clear success/failure feedback.",
+        "If an owner is configured and the logged-in user is not the owner, the UI shows the existing English 'Access Denied' experience without offering a claim/reset option.",
+        "After successfully claiming ownership, the user can access /admin/orders without seeing 'Access Denied', and the Admin link becomes visible where appropriate."
       ],
       "file_operations": [
-        {
-          "path": "frontend/src/pages/CheckoutPage.tsx",
-          "operation": "modify",
-          "description": "Update the BTC amount calculation and the captured OrderSnapshot.usdtAmount to be based on a discounted total (cartSession.total * 0.5), so the Checkout success view payment instructions reflect the 50% rule."
-        },
-        {
-          "path": "frontend/src/pages/OrderStatusPage.tsx",
-          "operation": "modify",
-          "description": "For Pending Payment orders, pass a non-zero discounted USDT approximation into BitcoinPaymentInstructions by deriving it from the stored order BTC amount using the same fixed conversion basis used at checkout (so the instructions remain consistent without cart/session state)."
-        },
-        {
-          "path": "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx",
-          "operation": "modify",
-          "description": "Ensure the “≈ $X USDT” line displays the discounted USDT amount provided by callers, and remains hidden only when the amount is genuinely unavailable (not due to passing 0)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-11",
-      "summary": "Restrict Admin Panel UI access to the configured owner using Internet Identity and show English login-required / access-denied experiences.",
-      "acceptanceCriteria": [
-        "Visiting /admin/orders or /admin/orders/:orderId as an anonymous user prompts login (Internet Identity) or shows a clear English message indicating login is required.",
-        "After login, only the configured owner identity can view AdminOrdersPage and AdminOrderDetailPage; non-owner authenticated users see an English “Access denied” message and cannot view admin data.",
-        "Backend enforces owner-only authorization for getAllOrders and updateOrderStatus (and any other admin-only methods); non-owner calls fail even if the frontend is bypassed.",
-        "Owner can still successfully view all orders and update statuses from the admin UI.",
-        "User-facing error messages for blocked admin access are in English and do not expose sensitive internals."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/auth/AdminRouteGuard.tsx",
-          "operation": "create",
-          "description": "Create an admin-only route guard that uses Internet Identity to require login and uses the authorization component’s role-based capability (via backend role checks) to allow only the owner/admin; render English “Login required” or “Access denied” states when blocked. Verify the component's usage instructions before implementing."
-        },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add a react-query hook (e.g., useIsCallerAdmin / useCallerRole) that checks whether the current caller is admin/owner for use by AdminRouteGuard and navigation gating. Verify the component's usage instructions before implementing."
+          "description": "Add React Query hooks for site ownership resolution: a query hook that calls the backend capability to read the configured owner (getSiteOwner) and a mutation hook that calls the backend capability to claim ownership once (claimSiteOwner). Ensure the claim mutation invalidates/refetches admin-related queries (e.g., isCallerAdmin, orders) so UI updates immediately after success. This integrates with the existing core-infrastructure actor wiring (useActor) and the authorization system’s role checks. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/components/auth/AdminRouteGuard.tsx",
           "operation": "modify",
-          "description": "Wire AdminRouteGuard into the /admin/orders and /admin/orders/$orderId route components so admin pages are not directly rendered unless the user is authenticated and authorized. Verify the component's usage instructions before implementing."
+          "description": "Update the admin guard UX for authenticated-but-not-admin users: after isCallerAdmin resolves false, query the backend for the configured owner. If owner is not configured, show an English explanation and a 'Claim Admin Access' action that triggers the claim mutation, with clear success/failure states and a retry path; on success, refresh admin status and render children when admin becomes true. If an owner is configured and the caller is not the owner, keep the existing English Access Denied experience without any claim/reset option. Use existing shadcn-ui components already in this file (Card, Button, Alert) for consistent UI. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/layout/SiteLayout.tsx",
+          "path": "frontend/src/utils/errors.ts",
           "operation": "modify",
-          "description": "Update header/footer navigation to hide or disable the Admin link for non-owner users by consulting the admin/owner check; keep all user-facing text in English. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/admin/AdminOrdersPage.tsx",
-          "operation": "modify",
-          "description": "Harden the admin list UI to handle authorization failures gracefully (English message, no sensitive error details) in case the guard is bypassed or role checks change. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/admin/AdminOrderDetailPage.tsx",
-          "operation": "modify",
-          "description": "Harden the admin detail/update UI to handle authorization failures gracefully (English message, no sensitive error details) for both reading and status update attempts. Verify the component's usage instructions before implementing."
+          "description": "Extend backend error-to-English-message mapping to gracefully handle ownership-claim related failures (e.g., ownership already claimed / not allowed) so the claim flow displays clear English feedback and does not surface raw trap text. Verify the component's usage instructions before implementing."
         }
       ]
     }

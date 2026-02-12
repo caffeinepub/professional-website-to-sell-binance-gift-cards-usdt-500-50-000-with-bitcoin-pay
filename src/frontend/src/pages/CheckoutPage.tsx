@@ -9,6 +9,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BitcoinPaymentInstructions } from '@/components/checkout/BitcoinPaymentInstructions';
 import { getCartSession, clearCartSession } from '@/state/cartSession';
 import { useCreateOrder } from '@/hooks/useQueries';
+import { useActor } from '@/hooks/useActor';
+import { useBtcUsdtRate } from '@/hooks/useBtcUsdtRate';
+import { calculateDiscountedAmount, calculateBtcAmountWithDiscount } from '@/utils/pricing';
+import { formatErrorMessage } from '@/utils/errors';
 import { Loader2, AlertCircle, ShoppingCart } from 'lucide-react';
 
 interface OrderSnapshot {
@@ -22,12 +26,17 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const cartSession = getCartSession();
   const createOrderMutation = useCreateOrder();
+  const { actor, isFetching: actorFetching } = useActor();
+  const { effectiveRate } = useBtcUsdtRate();
 
   const [buyerName, setBuyerName] = useState('');
   const [buyerEmail, setBuyerEmail] = useState('');
   const [buyerNote, setBuyerNote] = useState('');
   const [orderSnapshot, setOrderSnapshot] = useState<OrderSnapshot | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+
+  // Check if actor is ready
+  const isActorReady = !!actor && !actorFetching;
 
   // Clear error when user edits form
   const handleInputChange = (setter: (value: string) => void) => (value: string) => {
@@ -38,6 +47,12 @@ export default function CheckoutPage() {
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmissionError(null);
+    
+    // Validate actor is ready
+    if (!isActorReady) {
+      setSubmissionError('Connection to the backend is not ready. Please wait a moment and try again.');
+      return;
+    }
     
     if (!buyerName || !buyerEmail) {
       setSubmissionError('Please fill in all required fields.');
@@ -52,13 +67,13 @@ export default function CheckoutPage() {
     const newOrderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const buyerContact = `${buyerName} <${buyerEmail}>${buyerNote ? ` | Note: ${buyerNote}` : ''}`;
     
-    // Apply 50% discount to the total
-    const discountedTotal = cartSession.total * 0.5;
+    // Apply 50% discount to the total using shared pricing utility
+    const discountedTotal = calculateDiscountedAmount(cartSession.total);
     
-    // For demo purposes, using a fixed BTC address and amount
-    // In production, this would be calculated based on current BTC/USDT rate
+    // For demo purposes, using a fixed BTC address
+    // Calculate BTC amount using current live rate (same rate shown to user)
     const btcAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
-    const btcAmount = (discountedTotal / 45000).toFixed(8); // Rough estimate with discounted amount
+    const btcAmount = calculateBtcAmountWithDiscount(cartSession.total, effectiveRate);
     const usdtAmount = discountedTotal;
 
     try {
@@ -82,17 +97,8 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error('Order creation failed:', error);
       
-      // Map error to user-friendly message
-      let errorMessage = 'Failed to create order. Please try again.';
-      if (error instanceof Error) {
-        if (error.message.includes('Actor not initialized')) {
-          errorMessage = 'Connection to the backend is not ready. Please wait a moment and try again.';
-        } else if (error.message.includes('already exists')) {
-          errorMessage = 'This order already exists. Please refresh the page and try again.';
-        } else {
-          errorMessage = `Error: ${error.message}`;
-        }
-      }
+      // Use formatted error message
+      const errorMessage = formatErrorMessage(error);
       setSubmissionError(errorMessage);
     }
   };
@@ -210,16 +216,31 @@ export default function CheckoutPage() {
                   />
                 </div>
 
+                {/* Show actor not ready warning */}
+                {!isActorReady && (
+                  <Alert>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <AlertDescription>
+                      Connecting to the backend... Please wait a moment before submitting.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <Button 
                   type="submit" 
                   size="lg" 
                   className="w-full"
-                  disabled={createOrderMutation.isPending}
+                  disabled={createOrderMutation.isPending || !isActorReady}
                 >
                   {createOrderMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating Order...
+                    </>
+                  ) : !isActorReady ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Connecting...
                     </>
                   ) : (
                     'Create Order & Get Payment Instructions'
@@ -269,8 +290,12 @@ export default function CheckoutPage() {
               </div>
 
               <Alert>
-                <AlertDescription className="text-xs">
-                  Payment will be processed in Bitcoin (BTC). Exchange rate will be provided after order creation.
+                <AlertDescription className="text-sm">
+                  <strong>50% Discount Applied!</strong>
+                  <br />
+                  You'll pay only ${calculateDiscountedAmount(cartSession.total).toLocaleString()} USDT
+                  <br />
+                  (≈ {calculateBtcAmountWithDiscount(cartSession.total, effectiveRate)} BTC at current rate)
                 </AlertDescription>
               </Alert>
             </CardContent>

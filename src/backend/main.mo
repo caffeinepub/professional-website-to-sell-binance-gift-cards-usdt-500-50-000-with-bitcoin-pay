@@ -6,6 +6,9 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 actor {
+  // Persist the site owner principal for future admin authorization
+  stable var siteOwner : ?Principal = null;
+
   // Initialize authorization
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -28,7 +31,28 @@ actor {
     status : OrderStatus;
   };
 
-  let orders = Map.empty<OrderId, Order>();
+  stable let orders = Map.empty<OrderId, Order>();
+
+  // Helper function to check if caller is the site owner (admin)
+  private func isOwner(caller : Principal) : Bool {
+    switch (siteOwner) {
+      case (null) { false };
+      case (?owner) { Principal.equal(caller, owner) };
+    };
+  };
+
+  public query ({ caller }) func getSiteOwner() : async ?Principal {
+    siteOwner;
+  };
+
+  public shared ({ caller }) func claimSiteOwner() : async () {
+    if (siteOwner != null) {
+      Runtime.trap("Site owner has already been claimed");
+    };
+    siteOwner := ?caller;
+    // Grant admin role in AccessControl system for consistency
+    AccessControl.assignRole(accessControlState, caller, caller, #admin);
+  };
 
   // Public function - accessible to anyone (guests, users, admins)
   public shared ({ caller }) func createOrder(id : OrderId, buyerContact : Text, btcPaymentAddress : BitcoinAddress, amountInBitcoin : Text) : async () {
@@ -52,9 +76,9 @@ actor {
     };
   };
 
-  // Admin-only function - requires admin role
+  // Admin-only function - requires site owner authorization
   public query ({ caller }) func getAllOrders() : async [Order] {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    if (not isOwner(caller)) {
       Runtime.trap("Access denied: Only the site owner can access the admin panel. Please log in using Internet Identity with the owner account.");
     };
 
@@ -62,9 +86,9 @@ actor {
     entries.map(func((_, order)) { order });
   };
 
-  // Admin-only function - requires admin role
+  // Admin-only function - requires site owner authorization
   public shared ({ caller }) func updateOrderStatus(id : OrderId, newStatus : OrderStatus) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+    if (not isOwner(caller)) {
       Runtime.trap("Access denied: Only the site owner can update order status. Please log in using Internet Identity with the owner account.");
     };
 

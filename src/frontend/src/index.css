@@ -37,6 +37,13 @@
         --sidebar-accent-foreground: 0.15 0 0;
         --sidebar-border: 0.88 0 0;
         --sidebar-ring: 0.55 0.18 35;
+        
+        /* Binance theme colors */
+        --binance-yellow: 0.82 0.18 85;
+        --binance-yellow-dark: 0.70 0.16 80;
+        --binance-dark: 0.18 0.01 60;
+        --binance-dark-lighter: 0.24 0.01 60;
+        --binance-dark-border: 0.35 0.02 70;
     }
 
     .dark {
@@ -72,13 +79,20 @@
         --sidebar-accent-foreground: 0.95 0 0;
         --sidebar-border: 0.95 0 0 / 12%;
         --sidebar-ring: 0.70 0.20 40;
+        
+        /* Binance theme colors for dark mode */
+        --binance-yellow: 0.82 0.18 85;
+        --binance-yellow-dark: 0.70 0.16 80;
+        --binance-dark: 0.15 0.01 60;
+        --binance-dark-lighter: 0.20 0.01 60;
+        --binance-dark-border: 0.30 0.02 70;
     }
 
     * {
         @apply border-border;
     }
+
     body {
         @apply bg-background text-foreground;
-        font-feature-settings: "rlig" 1, "calt" 1;
     }
 }

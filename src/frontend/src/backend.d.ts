@@ -29,10 +29,12 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    claimSiteOwner(): Promise<void>;
     createOrder(id: OrderId, buyerContact: string, btcPaymentAddress: BitcoinAddress, amountInBitcoin: string): Promise<void>;
     getAllOrders(): Promise<Array<Order>>;
     getCallerUserRole(): Promise<UserRole>;
     getOrder(id: OrderId): Promise<Order>;
+    getSiteOwner(): Promise<Principal | null>;
     isCallerAdmin(): Promise<boolean>;
     updateOrderStatus(id: OrderId, newStatus: OrderStatus): Promise<void>;
 }

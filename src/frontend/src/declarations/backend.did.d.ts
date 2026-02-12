@@ -29,6 +29,7 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'claimSiteOwner' : ActorMethod<[], undefined>,
   'createOrder' : ActorMethod<
     [OrderId, string, BitcoinAddress, string],
     undefined
@@ -36,6 +37,7 @@ export interface _SERVICE {
   'getAllOrders' : ActorMethod<[], Array<Order>>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getOrder' : ActorMethod<[OrderId], Order>,
+  'getSiteOwner' : ActorMethod<[], [] | [Principal]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'updateOrderStatus' : ActorMethod<[OrderId, OrderStatus], undefined>,
 }

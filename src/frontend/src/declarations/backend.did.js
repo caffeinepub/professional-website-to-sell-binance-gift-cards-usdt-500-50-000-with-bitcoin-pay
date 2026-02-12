@@ -32,6 +32,7 @@ export const Order = IDL.Record({
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'claimSiteOwner' : IDL.Func([], [], []),
   'createOrder' : IDL.Func(
       [OrderId, IDL.Text, BitcoinAddress, IDL.Text],
       [],
@@ -40,6 +41,7 @@ export const idlService = IDL.Service({
   'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getOrder' : IDL.Func([OrderId], [Order], ['query']),
+  'getSiteOwner' : IDL.Func([], [IDL.Opt(IDL.Principal)], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'updateOrderStatus' : IDL.Func([OrderId, OrderStatus], [], []),
 });
@@ -71,6 +73,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'claimSiteOwner' : IDL.Func([], [], []),
     'createOrder' : IDL.Func(
         [OrderId, IDL.Text, BitcoinAddress, IDL.Text],
         [],
@@ -79,6 +82,7 @@ export const idlFactory = ({ IDL }) => {
     'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getOrder' : IDL.Func([OrderId], [Order], ['query']),
+    'getSiteOwner' : IDL.Func([], [IDL.Opt(IDL.Principal)], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'updateOrderStatus' : IDL.Func([OrderId, OrderStatus], [], []),
   });

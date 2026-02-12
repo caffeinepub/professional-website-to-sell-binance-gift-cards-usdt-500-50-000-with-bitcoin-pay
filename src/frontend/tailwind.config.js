@@ -83,6 +83,13 @@ export default {
                     'accent-foreground': 'oklch(var(--sidebar-accent-foreground))',
                     border: 'oklch(var(--sidebar-border))',
                     ring: 'oklch(var(--sidebar-ring))'
+                },
+                binance: {
+                    yellow: 'oklch(var(--binance-yellow) / <alpha-value>)',
+                    'yellow-dark': 'oklch(var(--binance-yellow-dark) / <alpha-value>)',
+                    dark: 'oklch(var(--binance-dark))',
+                    'dark-lighter': 'oklch(var(--binance-dark-lighter))',
+                    'dark-border': 'oklch(var(--binance-dark-border))'
                 }
             },
             borderRadius: {
@@ -91,7 +98,9 @@ export default {
                 sm: 'calc(var(--radius) - 4px)'
             },
             boxShadow: {
-                xs: '0 1px 2px 0 rgba(0,0,0,0.05)'
+                xs: '0 1px 2px 0 rgba(0,0,0,0.05)',
+                'binance-glow': '0 0 20px rgba(240, 185, 11, 0.3)',
+                'binance-glow-strong': '0 0 30px rgba(240, 185, 11, 0.5)'
             },
             keyframes: {
                 'accordion-down': {

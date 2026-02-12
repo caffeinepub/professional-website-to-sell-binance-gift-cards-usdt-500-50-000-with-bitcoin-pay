@@ -6,6 +6,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { BitcoinPaymentInstructions } from '@/components/checkout/BitcoinPaymentInstructions';
 import { useGetOrder } from '@/hooks/useQueries';
+import { useBtcUsdtRate } from '@/hooks/useBtcUsdtRate';
+import { convertBtcToUsdtWithRate } from '@/utils/pricing';
 import { OrderStatus } from '@/backend';
 import { Loader2, AlertCircle, CheckCircle2, Clock, XCircle, Package } from 'lucide-react';
 
@@ -13,6 +15,7 @@ export default function OrderStatusPage() {
   const { orderId } = useParams({ strict: false }) as { orderId: string };
   const navigate = useNavigate();
   const { data: order, isLoading, isError } = useGetOrder(orderId);
+  const { rate, source } = useBtcUsdtRate();
 
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
@@ -56,10 +59,8 @@ export default function OrderStatusPage() {
     );
   }
 
-  // Calculate USDT amount from BTC amount (reverse of checkout calculation)
-  // Using the same conversion rate: btcAmount = usdtAmount / 45000
-  // Therefore: usdtAmount = btcAmount * 45000
-  const estimatedUsdtAmount = parseFloat(order.amountInBitcoin) * 45000;
+  // Calculate estimated USDT amount from BTC amount using current live rate
+  const estimatedUsdtAmount = convertBtcToUsdtWithRate(order.amountInBitcoin, rate);
 
   return (
     <div className="container py-12 max-w-4xl">
@@ -90,68 +91,92 @@ export default function OrderStatusPage() {
                 <p className="font-mono font-medium">{order.amountInBitcoin} BTC</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Payment Address</p>
-                <p className="font-mono text-sm break-all">{order.btcPaymentAddress}</p>
+                <p className="text-sm text-muted-foreground mb-1">Estimated USDT Value</p>
+                <p className="font-medium">
+                  ≈ ${estimatedUsdtAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Based on current rate ({source})
+                </p>
               </div>
             </div>
 
             <Separator />
 
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Payment Address</p>
+              <p className="font-mono text-sm break-all bg-muted/50 p-3 rounded border">
+                {order.btcPaymentAddress}
+              </p>
+            </div>
+
             {order.status === OrderStatus.pendingPayment && (
               <>
+                <Separator />
                 <Alert>
                   <Clock className="h-4 w-4" />
                   <AlertDescription>
                     Your order is awaiting payment. Please complete the Bitcoin transaction to proceed.
                   </AlertDescription>
                 </Alert>
-                <BitcoinPaymentInstructions 
-                  orderId={order.id}
-                  btcAddress={order.btcPaymentAddress}
-                  btcAmount={order.amountInBitcoin}
-                  usdtAmount={estimatedUsdtAmount}
-                />
               </>
             )}
 
             {order.status === OrderStatus.paid && (
-              <Alert>
-                <CheckCircle2 className="h-4 w-4" />
-                <AlertDescription>
-                  Payment received! Your order is being processed and will be delivered soon.
-                </AlertDescription>
-              </Alert>
+              <>
+                <Separator />
+                <Alert className="border-blue-500/20 bg-blue-500/5">
+                  <CheckCircle2 className="h-4 w-4 text-blue-500" />
+                  <AlertDescription>
+                    Payment received! Your order is being processed and will be delivered shortly.
+                  </AlertDescription>
+                </Alert>
+              </>
             )}
 
             {order.status === OrderStatus.delivered && (
-              <Alert className="border-green-500 bg-green-500/10">
-                <Package className="h-4 w-4 text-green-500" />
-                <AlertDescription className="text-green-700 dark:text-green-400">
-                  Your gift card has been delivered! Check your email for details.
-                </AlertDescription>
-              </Alert>
+              <>
+                <Separator />
+                <Alert className="border-green-500/20 bg-green-500/5">
+                  <Package className="h-4 w-4 text-green-500" />
+                  <AlertDescription>
+                    Your gift card has been delivered! Check your email for details.
+                  </AlertDescription>
+                </Alert>
+              </>
             )}
 
             {order.status === OrderStatus.cancelled && (
-              <Alert variant="destructive">
-                <XCircle className="h-4 w-4" />
-                <AlertDescription>
-                  This order has been cancelled. Please contact support if you have questions.
-                </AlertDescription>
-              </Alert>
+              <>
+                <Separator />
+                <Alert variant="destructive">
+                  <XCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    This order has been cancelled. Please contact support if you have questions.
+                  </AlertDescription>
+                </Alert>
+              </>
             )}
-
-            <div className="flex gap-4">
-              <Button 
-                variant="outline"
-                onClick={() => navigate({ to: '/catalog' })}
-                className="flex-1"
-              >
-                Browse More Cards
-              </Button>
-            </div>
           </CardContent>
         </Card>
+
+        {order.status === OrderStatus.pendingPayment && (
+          <BitcoinPaymentInstructions 
+            orderId={order.id}
+            btcAddress={order.btcPaymentAddress}
+            btcAmount={order.amountInBitcoin}
+            usdtAmount={estimatedUsdtAmount}
+          />
+        )}
+
+        <div className="flex gap-4">
+          <Button 
+            variant="outline"
+            onClick={() => navigate({ to: '/catalog' })}
+          >
+            Browse More Cards
+          </Button>
+        </div>
       </div>
     </div>
   );

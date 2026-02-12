@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Show Bitcoin payment instructions using a global 50% discounted USDT basis, and lock down the Admin Panel so only the site owner can access admin pages and operations.
+**Goal:** Fix admin “Access Denied” for the real site owner by persisting a single owner Principal in the backend and providing a safe one-time ownership claim flow, with frontend guidance to self-resolve when no owner is configured.
 
 **Planned changes:**
-- Apply a global 50% pricing rule to the USDT amount used for BTC payment instruction calculations and the displayed “≈ $X USDT” line on Checkout success and on the Order Status page (Pending Payment).
-- Persist the discounted USDT amount (or equivalent) in backend order data so Order Status can render correct payment instructions without relying on cart/session state.
-- Require Internet Identity login for admin routes and restrict AdminOrdersPage/AdminOrderDetailPage visibility to the configured owner identity; show English “Access denied” for non-owners.
-- Enforce owner-only authorization in the backend for admin-only methods (listing all orders, updating order status), ensuring bypassing the frontend still fails.
+- Persist an explicit site-owner Principal in stable state in the Motoko backend and use it as the sole source of truth for admin authorization checks.
+- Add backend endpoints to (1) query the currently configured owner Principal (or none) and (2) allow a one-time ownership claim that sets owner = caller only when no owner is configured yet (optionally allow owner-only transfer).
+- Update the frontend admin-route gating on `/admin/orders` to check whether an owner is configured; if not, offer an English “Claim Admin Access” action with clear success/failure feedback, otherwise show the existing English “Access Denied” experience for non-owners.
 
-**User-visible outcome:** Buyers see BTC payment instructions reflecting half the selected gift card total on Checkout and Order Status (pending) screens, while admin pages and admin actions are accessible only to the logged-in owner (others are prompted to log in or shown “Access denied” in English.
+**User-visible outcome:** The real owner can reliably access admin-only pages and actions (including after upgrades). If the backend has no owner configured, the first logged-in user can claim admin access from the Access Denied screen; non-owners continue to be blocked with clear English messaging.

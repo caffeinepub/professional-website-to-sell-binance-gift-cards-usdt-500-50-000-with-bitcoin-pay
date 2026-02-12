@@ -115,7 +115,7 @@ export function BitcoinPaymentInstructions({
               </p>
               {usdtAmount > 0 && (
                 <p className="text-sm text-muted-foreground">
-                  ≈ ${usdtAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
+                  ≈ ${usdtAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT (estimate at time of order)
                 </p>
               )}
             </div>

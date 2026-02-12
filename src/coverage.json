@@ -1,77 +1,59 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T12:31:03.012Z",
+  "generatedAt": "2026-02-12T14:34:49.116Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 3,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-10",
-        "summary": "Apply a global 50% pricing rule so that the amount shown in Bitcoin payment instructions reflects half of the selected gift card USDT total (e.g., a $500 card charges $250 worth of BTC), consistently across Checkout success view and the Order Status page for pending-payment orders.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/CheckoutPage.tsx",
-          "frontend/src/pages/OrderStatusPage.tsx",
-          "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/CheckoutPage.tsx",
-          "frontend/src/pages/OrderStatusPage.tsx",
-          "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx"
-        ]
+        "id": "REQ-21",
+        "summary": "Persist a single site-owner Principal in the Motoko backend and use it as the source of truth for admin authorization, so the owner can access admin-only APIs reliably after upgrades/redeploys.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-11",
-        "summary": "Restrict Admin Panel access so only the site owner can access admin routes and admin backend operations (listing all orders and updating order status). Use Internet Identity for owner authentication/authorization and show an English “Access denied” experience to non-owners.",
+        "id": "REQ-22",
+        "summary": "Add backend APIs to (1) read the currently configured owner principal and (2) allow a one-time ownership claim when no owner is configured yet, so the real owner can resolve an 'Access Denied' situation without redeploying.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-23",
+        "summary": "Update the frontend admin-route gating UX to help the real owner self-resolve 'Access Denied' when the backend has no owner configured yet, using only English user-facing text.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/auth/AdminRouteGuard.tsx",
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/App.tsx",
-          "frontend/src/components/layout/SiteLayout.tsx",
-          "frontend/src/pages/admin/AdminOrdersPage.tsx",
-          "frontend/src/pages/admin/AdminOrderDetailPage.tsx"
+          "frontend/src/components/auth/AdminRouteGuard.tsx",
+          "frontend/src/utils/errors.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/auth/AdminRouteGuard.tsx",
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/App.tsx",
-          "frontend/src/components/layout/SiteLayout.tsx",
-          "frontend/src/pages/admin/AdminOrdersPage.tsx",
-          "frontend/src/pages/admin/AdminOrderDetailPage.tsx"
+          "frontend/src/components/auth/AdminRouteGuard.tsx",
+          "frontend/src/utils/errors.ts"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/authorization/MixinAuthorization.mo",
-    "backend/authorization/access-control.mo",
     "backend/main.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
     "frontend/src/components/auth/AdminRouteGuard.tsx",
-    "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx",
-    "frontend/src/components/layout/SiteLayout.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useActor.ts",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/CheckoutPage.tsx",
-    "frontend/src/pages/OrderStatusPage.tsx",
-    "frontend/src/pages/admin/AdminOrderDetailPage.tsx",
-    "frontend/src/pages/admin/AdminOrdersPage.tsx",
-    "frontend/src/utils/urlParams.ts",
+    "frontend/src/utils/errors.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,73 +1,78 @@
 {
   "kind": "build_request",
-  "title": "Apply 50% pricing rule for BTC payment instructions and restrict Admin Panel to owner-only",
-  "priority": "normal",
+  "title": "Fix Admin access denied for site owner (Internet Identity owner principal mismatch / uninitialized owner)",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-10",
-      "text": "Apply a global 50% pricing rule so that the amount shown in Bitcoin payment instructions reflects half of the selected gift card USDT total (e.g., a $500 card charges $250 worth of BTC), consistently across Checkout success view and the Order Status page for pending-payment orders.",
-      "target": "both",
+      "id": "REQ-21",
+      "text": "Persist a single site-owner Principal in the Motoko backend and use it as the source of truth for admin authorization, so the owner can access admin-only APIs reliably after upgrades/redeploys.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-user-1"
+          "msg-9"
         ],
         "quotes": [
-          "Prices half rakhni hain Like agr koi $500 ka Card ka order krta ha to payment instructions pr half price show ho like 500$ card ki price $250 equivalent to bitcoin. isi trh sb Cards ki Price half"
+          "Yr mai he owner hu mai ny he tjhsy bnwai hai to mjhy Access Denied q arha isko solve kr"
         ]
       },
       "acceptanceCriteria": [
-        "On Checkout, after clicking “Create Order & Get Payment Instructions”, the displayed BTC amount is calculated from (cartSession.total * 0.5) instead of (cartSession.total).",
-        "The BitcoinPaymentInstructions component’s “≈ $X USDT” line shows the discounted USDT amount (half of the selected total), not the original total.",
-        "On the Order Status page, when an order is in Pending Payment, the BitcoinPaymentInstructions section also shows the discounted USDT approximation (not 0).",
-        "Backend order data includes a field for the discounted USDT amount (or equivalent) so the Order Status page can display it without relying on cart/session state.",
-        "Existing (non-admin) order creation and order lookup flows continue to work without requiring login."
+        "Backend stores an explicit owner Principal in stable state and uses it for admin checks (not an ephemeral in-memory-only value).",
+        "After a canister upgrade, the stored owner Principal remains unchanged and admin checks continue to work.",
+        "Admin-only methods (e.g., getAllOrders, updateOrderStatus) authorize the stored owner Principal and reject non-owner principals with an English error message."
       ]
     },
     {
-      "id": "REQ-11",
-      "text": "Restrict Admin Panel access so only the site owner can access admin routes and admin backend operations (listing all orders and updating order status). Use Internet Identity for owner authentication/authorization and show an English “Access denied” experience to non-owners.",
-      "target": "both",
+      "id": "REQ-22",
+      "text": "Add backend APIs to (1) read the currently configured owner principal and (2) allow a one-time ownership claim when no owner is configured yet, so the real owner can resolve an 'Access Denied' situation without redeploying.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-user-1"
+          "msg-9"
         ],
         "quotes": [
-          "Or Dsri Chez ye k Admin Panel ko sirf mai he Access kro koi or nii sirf main q k mai owner hu na"
+          "Yr mai he owner hu mai ny he tjhsy bnwai hai to mjhy Access Denied q arha isko solve kr"
         ]
       },
       "acceptanceCriteria": [
-        "Visiting /admin/orders or /admin/orders/:orderId as an anonymous user prompts login (Internet Identity) or shows a clear English message indicating login is required.",
-        "After login, only the configured owner identity can view AdminOrdersPage and AdminOrderDetailPage; non-owner authenticated users see an English “Access denied” message and cannot view admin data.",
-        "Backend enforces owner-only authorization for getAllOrders and updateOrderStatus (and any other admin-only methods); non-owner calls fail even if the frontend is bypassed.",
-        "Owner can still successfully view all orders and update statuses from the admin UI.",
-        "User-facing error messages for blocked admin access are in English and do not expose sensitive internals."
+        "A query endpoint exists to return the configured owner Principal (or an empty/none value if not configured).",
+        "A shared endpoint exists to claim/set the owner Principal only when no owner is currently configured; it sets owner = caller and succeeds exactly once.",
+        "After ownership is claimed, subsequent attempts to claim/reset ownership by non-owner principals fail with an English error message.",
+        "(Optional but allowed) A shared endpoint exists to transfer ownership that is callable only by the current owner."
+      ]
+    },
+    {
+      "id": "REQ-23",
+      "text": "Update the frontend admin-route gating UX to help the real owner self-resolve 'Access Denied' when the backend has no owner configured yet, using only English user-facing text.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-9"
+        ],
+        "quotes": [
+          "Yr mai he owner hu mai ny he tjhsy bnwai hai to mjhy Access Denied q arha isko solve kr"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When a logged-in user visits /admin/orders and is not recognized as admin, the UI checks whether an owner is configured in the backend.",
+        "If no owner is configured, the Access Denied screen offers an explicit English action to claim ownership (e.g., a 'Claim Admin Access' button) and shows clear success/failure feedback.",
+        "If an owner is configured and the logged-in user is not the owner, the UI shows the existing English 'Access Denied' experience without offering a claim/reset option.",
+        "After successfully claiming ownership, the user can access /admin/orders without seeing 'Access Denied', and the Admin link becomes visible where appropriate."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
-    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "Do not add third-party authentication providers; only Internet Identity is allowed."
+    "Backend must remain a single Motoko main actor (all logic in backend/main.mo).",
+    "Use Internet Identity for authentication/authorization; no third-party auth providers.",
+    "Do not edit any files under frontend/src/components/ui or any frontend immutablePaths listed in SYSTEM_CONTEXT.",
+    "All user-facing text introduced/modified for this fix must be in English."
   ],
   "nonGoals": [
-    "Do not implement live BTC pricing/oracle integration; keep the existing approach for deriving BTC amounts but apply the 50% rule to the USDT basis used for calculation and display.",
-    "Do not add multi-admin roles or a full admin user management system; owner-only access is sufficient.",
-    "Do not change the existing denomination range ($500–$50,000) or catalog selection UX beyond what is necessary to reflect the 50% pricing in payment instructions."
+    "Adding multi-admin support or role management beyond a single site owner (unless already present).",
+    "Changing the existing admin routes (keep /admin/orders and /admin/orders/$orderId).",
+    "Adding external databases or third-party services."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [
-      "Use English for any user-facing text."
-    ],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

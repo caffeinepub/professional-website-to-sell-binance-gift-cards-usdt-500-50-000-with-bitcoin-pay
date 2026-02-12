@@ -2,36 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-apply-a-global-50-pricing-rule-so-that-the-amount-shown-in-bitcoin-payment-instructions-reflects-half-of-the-selected-gift-card-usdt-total-e-g-a-500-card-charges-250-worth-of-btc-consistently-across-checkout-success-view-and-the-order-status-page-for-pending-payment-orders",
-      "featureTitle": "Apply a global 50% pricing rule so that the amount shown in Bitcoin payment instructions reflects half of the selected gift card USDT total (e.g., a $500 card charges $250 worth of BTC), consistently across Checkout success view and the Order Status page for pending-payment orders.",
+      "featureId": "feature-update-the-frontend-admin-route-gating-ux-to-help-the-real-owner-self-resolve-access-denied-when-the-backend-has-no-owner-configured-yet-using-only-english-user-facing-text",
+      "featureTitle": "Update the frontend admin-route gating UX to help the real owner self-resolve 'Access Denied' when the backend has no owner configured yet, using only English user-facing text.",
       "files": [
-        "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx",
-        "frontend/src/pages/CheckoutPage.tsx",
-        "frontend/src/pages/OrderStatusPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-10"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-restrict-admin-panel-access-so-only-the-site-owner-can-access-admin-routes-and-admin-backend-operations-listing-all-orders-and-updating-order-status-use-internet-identity-for-owner-authentication-authorization-and-show-an-english-access-denied-experience-to-non-owners",
-      "featureTitle": "Restrict Admin Panel access so only the site owner can access admin routes and admin backend operations (listing all orders and updating order status). Use Internet Identity for owner authentication/authorization and show an English “Access denied” experience to non-owners.",
-      "files": [
-        "frontend/src/App.tsx",
         "frontend/src/components/auth/AdminRouteGuard.tsx",
-        "frontend/src/components/layout/SiteLayout.tsx",
         "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/admin/AdminOrderDetailPage.tsx",
-        "frontend/src/pages/admin/AdminOrdersPage.tsx"
+        "frontend/src/utils/errors.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -42,7 +18,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-11"
+        "REQ-23"
       ],
       "confidence": "high"
     }
