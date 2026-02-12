@@ -1,6 +1,7 @@
 import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet } from '@tanstack/react-router';
 import { SiteLayout } from './components/layout/SiteLayout';
 import { AdminRouteGuard } from './components/auth/AdminRouteGuard';
+import { GlobalErrorBoundary } from './components/error/GlobalErrorBoundary';
 import { GlobalErrorFallbackPage } from './pages/GlobalErrorFallbackPage';
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
@@ -141,5 +142,9 @@ declare module '@tanstack/react-router' {
 }
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <GlobalErrorBoundary fallback={(error, reset) => <GlobalErrorFallbackPage error={error} reset={reset} />}>
+      <RouterProvider router={router} />
+    </GlobalErrorBoundary>
+  );
 }

@@ -4,29 +4,29 @@
   "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
-    "App/site not loading correctly; user reports it shows an error (possibly triggering a front-end error fallback like “Something went wrong”)."
+    "After deploying Version 20 to production, the same site-opening error persists (regression: previously not occurring)."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-identify-and-fix-the-root-cause-of-the-production-runtime-error-that-causes-the-app-to-render-only-the-global-something-went-wrong-fallback-on-initial-page-load-e-g-on-the-root-route",
-      "title": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (e.g., on the root route).",
+      "id": "feature-identify-and-fix-the-root-cause-of-the-production-runtime-error-that-causes-the-app-to-render-only-the-global-something-went-wrong-fallback-on-initial-page-load-including-on-the-root-route-the-fix-must-ensure-the-production-build-loads-successfully-without-triggering-the-tanstack-router-errorcomponent",
+      "title": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (including on the root route `/`). The fix must ensure the production build loads successfully without triggering the TanStack Router errorComponent.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-harden-the-global-error-fallback-implementation-so-it-cannot-itself-cause-crashes-in-production-builds-remove-replace-any-non-browser-safe-environment-checks-such-as-process-env-node-env-and-ensure-error-detail-rendering-is-guarded-all-user-facing-text-in-the-fallback-must-remain-in-english",
-      "title": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds (remove/replace any non-browser-safe environment checks such as `process.env.NODE_ENV` and ensure error-detail rendering is guarded). All user-facing text in the fallback must remain in English.",
+      "id": "feature-harden-the-global-error-fallback-implementation-so-it-cannot-itself-cause-crashes-in-production-builds-ensure-all-environment-checks-are-browser-safe-use-import-meta-env-only-and-guard-all-error-detail-rendering-so-that-unknown-thrown-values-cannot-break-the-fallback-all-user-facing-text-in-the-fallback-must-remain-in-english",
+      "title": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds. Ensure all environment checks are browser-safe (use `import.meta.env` only), and guard all error-detail rendering so that unknown thrown values cannot break the fallback. All user-facing text in the fallback must remain in English.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-app-shell-sitelayout-and-initial-routing-can-render-even-when-backend-connectivity-actor-creation-or-initial-react-query-calls-fail-in-particular-failures-in-non-critical-queries-used-by-layout-components-e-g-owner-admin-checks-and-recent-orders-dropdown-data-must-not-crash-the-entire-app",
-      "title": "Ensure the app shell (SiteLayout) and initial routing can render even when backend connectivity/actor creation or initial React Query calls fail. In particular, failures in non-critical queries used by layout components (e.g., owner/admin checks and recent-orders dropdown data) must not crash the entire app.",
+      "id": "feature-ensure-the-app-shell-sitelayout-and-initial-routing-can-render-even-when-backend-connectivity-actor-creation-or-initial-react-query-calls-fail-non-critical-layout-queries-e-g-ownership-admin-checks-and-recent-orders-dropdown-data-must-not-crash-the-entire-app-and-must-degrade-gracefully-hide-admin-link-disable-orders-menu-and-avoid-throwing",
+      "title": "Ensure the app shell (`SiteLayout`) and initial routing can render even when backend connectivity, actor creation, or initial React Query calls fail. Non-critical layout queries (e.g., ownership/admin checks and recent orders dropdown data) must not crash the entire app and must degrade gracefully (hide admin link, disable orders menu, and avoid throwing).",
       "reqIds": [
         "REQ-3"
       ],
@@ -34,7 +34,7 @@
     }
   ],
   "new_feature_requests": [],
-  "projectName": "Fix production crash showing “Something went wrong” on initial load",
+  "projectName": "Fix persistent production load crash showing global error fallback",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

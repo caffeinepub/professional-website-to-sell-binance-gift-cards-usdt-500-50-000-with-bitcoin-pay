@@ -1,71 +1,72 @@
 {
   "kind": "build_request",
-  "title": "Fix production crash showing “Something went wrong” on initial load",
-  "priority": "high",
+  "title": "Fix persistent production load crash showing global error fallback",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (e.g., on the root route).",
-      "target": "both",
+      "text": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (including on the root route `/`). The fix must ensure the production build loads successfully without triggering the TanStack Router errorComponent.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-6"
         ],
         "quotes": [
-          "Ye arha error ab"
+          "Still same error arha yr pta ni q.. phly to ni arha tha"
         ]
       },
       "acceptanceCriteria": [
-        "Opening the production URL loads the Home page UI (header + hero section) instead of the global error fallback.",
-        "No uncaught exceptions appear in the browser console during initial load on mobile Safari/Chrome.",
-        "The fix is compatible with a production build (no dev-only globals or assumptions that break in production)."
+        "In production, loading `/` renders the Home page content within `SiteLayout` and does not show the GlobalErrorFallbackPage.",
+        "No uncaught exceptions occur during initial page load in the browser console (excluding expected network warnings).",
+        "If an error still occurs, the console output includes enough context (error + stack, where available) to pinpoint the failing module/component without causing additional crashes."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds (remove/replace any non-browser-safe environment checks such as `process.env.NODE_ENV` and ensure error-detail rendering is guarded). All user-facing text in the fallback must remain in English.",
+      "text": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds. Ensure all environment checks are browser-safe (use `import.meta.env` only), and guard all error-detail rendering so that unknown thrown values cannot break the fallback. All user-facing text in the fallback must remain in English.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-6"
         ],
         "quotes": [
-          "Ye arha error ab"
+          "Still same error arha yr pta ni q.. phly to ni arha tha"
         ]
       },
       "acceptanceCriteria": [
-        "In a production build, the global error fallback page renders without referencing `process` (no \"process is not defined\" / similar errors).",
-        "In development mode, the fallback can optionally show the error message; in production, it must not expose internal error details.",
-        "The fallback continues to provide working “Reload page” and “Go to Home” actions."
+        "GlobalErrorFallbackPage renders without throwing even when `error` is `undefined`, a string, or a non-Error object.",
+        "No usage of `process.env.*` exists in runtime-executed frontend code paths for error fallback/handling.",
+        "All visible fallback UI strings are in English."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Ensure the app shell (SiteLayout) and initial routing can render even when backend connectivity/actor creation or initial React Query calls fail. In particular, failures in non-critical queries used by layout components (e.g., owner/admin checks and recent-orders dropdown data) must not crash the entire app.",
+      "text": "Ensure the app shell (`SiteLayout`) and initial routing can render even when backend connectivity, actor creation, or initial React Query calls fail. Non-critical layout queries (e.g., ownership/admin checks and recent orders dropdown data) must not crash the entire app and must degrade gracefully (hide admin link, disable orders menu, and avoid throwing).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-6"
         ],
         "quotes": [
-          "O yar tu khud check kr app open kr k.. k run kr rhi k error de rhi"
+          "Still same error arha yr pta ni q.. phly to ni arha tha"
         ]
       },
       "acceptanceCriteria": [
-        "If the backend actor is not ready or any layout-level query fails, the header/footer still render and navigation works; non-critical UI elements degrade gracefully (e.g., Admin link hidden, recent orders shows \"Unable to load\" rather than crashing).",
-        "No route-level errors are thrown solely due to layout-level hooks failing (e.g., `useIsOwner`, recent orders detail fetching).",
-        "Reloading the page after a transient connectivity issue successfully renders the app without requiring a hard refresh beyond the provided “Reload page” action."
+        "If the backend actor is not ready or backend calls fail, `SiteLayout` still renders header, footer, and the current route outlet.",
+        "Admin link is shown only when ownership is positively confirmed; otherwise it stays hidden without errors.",
+        "RecentOrdersMenu does not throw on load; when the actor is not ready it renders a disabled Orders button (or equivalent non-crashing UI)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (Shadcn components are read-only and must be composed, not modified).",
-    "Respect the single-actor Motoko backend architecture (all backend logic remains in backend/main.mo; add backend/migration.mo only if state migration is required).",
+    "Do not edit files under `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, or any files in `frontend/src/components/ui` (compose them instead).",
+    "Respect single-actor backend architecture; keep Motoko logic in `backend/main.mo` and only add `backend/migration.mo` changes if state migration is required.",
     "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Adding new product features unrelated to stabilizing initial load (e.g., new payment methods, new pages, redesign of catalog/checkout flows).",
-    "Introducing third-party auth providers or external databases/services."
+    "Adding new product features unrelated to fixing the production load error.",
+    "Introducing new backend services, external databases, or third-party auth providers (Internet Identity only).",
+    "UI redesign beyond what is necessary to prevent crashes and improve graceful degradation during backend/actor failures."
   ],
   "imageRequirements": {
     "required": [],

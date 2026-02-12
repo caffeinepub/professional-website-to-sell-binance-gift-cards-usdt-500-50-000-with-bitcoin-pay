@@ -30,14 +30,41 @@ export function formatErrorMessage(error: unknown): string {
 }
 
 /**
- * Normalize any thrown value into an Error-like object
- * Safe to use in error boundaries and catch blocks
+ * Normalize any thrown value into an Error-like object with message and stack
+ * Safe to use in error boundaries and catch blocks - never throws
  */
-export function normalizeError(error: unknown): { message: string; originalError: unknown } {
-  return {
-    message: formatErrorMessage(error),
-    originalError: error,
-  };
+export function normalizeError(error: unknown): { 
+  message: string; 
+  stack: string | null; 
+  originalError: unknown 
+} {
+  try {
+    const message = formatErrorMessage(error);
+    let stack: string | null = null;
+    
+    // Try to extract stack trace
+    if (error instanceof Error && error.stack) {
+      stack = error.stack;
+    } else if (typeof error === 'object' && error !== null && 'stack' in error) {
+      const stk = (error as { stack: unknown }).stack;
+      if (typeof stk === 'string') {
+        stack = stk;
+      }
+    }
+    
+    return {
+      message,
+      stack,
+      originalError: error,
+    };
+  } catch {
+    // If normalization itself fails, return minimal safe object
+    return {
+      message: 'Unable to process error details',
+      stack: null,
+      originalError: error,
+    };
+  }
 }
 
 /**

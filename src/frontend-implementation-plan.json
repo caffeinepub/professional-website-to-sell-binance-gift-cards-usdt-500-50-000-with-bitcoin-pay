@@ -1,83 +1,83 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Stabilize initial production load and harden global error handling",
+  "title": "Stabilize production initial load by preventing shell/storage/actor failures from crashing routing",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Fix the production runtime error causing initial load to fall back to the global “Something went wrong” screen.",
+      "summary": "Fix the production-only runtime error that triggers TanStack Router global error fallback on initial load and add crash-safe diagnostics to pinpoint any remaining failing module.",
       "acceptanceCriteria": [
-        "Opening the production URL loads the Home page UI (header + hero section) instead of the global error fallback.",
-        "No uncaught exceptions appear in the browser console during initial load on mobile Safari/Chrome.",
-        "The fix is compatible with a production build (no dev-only globals or assumptions that break in production)."
+        "In production, loading `/` renders the Home page content within `SiteLayout` and does not show the GlobalErrorFallbackPage.",
+        "No uncaught exceptions occur during initial page load in the browser console (excluding expected network warnings).",
+        "If an error still occurs, the console output includes enough context (error + stack, where available) to pinpoint the failing module/component without causing additional crashes."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/GlobalErrorFallbackPage.tsx",
+          "path": "frontend/src/state/orderHistory.ts",
           "operation": "modify",
-          "description": "Remove non-browser-safe runtime checks and ensure the fallback cannot throw during render (e.g., replace any Node-only env access with a browser-safe build-time flag; guard all error-detail reads). Use shadcn-ui composed components only; do not modify frontend/src/components/ui. Verify the component's usage instructions before implementing."
+          "description": "Harden localStorage-backed order history state so any storage access (read/parse/write/remove/subscribe) is wrapped in try/catch and falls back to an in-memory empty history when storage is unavailable/corrupted (prevents production initial-load crashes from storage exceptions)."
+        },
+        {
+          "path": "frontend/src/hooks/useOrderHistory.ts",
+          "operation": "modify",
+          "description": "Ensure the order history hook never throws during initial render: guard against storage failures, return stable defaults (empty list + safe booleans), and log a single, context-rich console error when recovery is triggered."
+        },
+        {
+          "path": "frontend/src/components/error/GlobalErrorBoundary.tsx",
+          "operation": "modify",
+          "description": "Augment error logging to include normalized error message and stack when available (without assuming the thrown value is an Error), and ensure logging itself cannot throw; keep logs informative for production debugging."
         },
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Harden TanStack Router error handling so non-Error throwables (strings/unknown) do not break the global error UI, and ensure root route initial render does not immediately cascade into repeated error rendering. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/utils/errors.ts",
-          "operation": "modify",
-          "description": "Add/adjust a safe normalization helper that converts unknown thrown values into an Error-like shape/message without throwing, and reuse it from global error rendering paths. Verify the component's usage instructions before implementing."
+          "description": "Wrap the RouterProvider with GlobalErrorBoundary so any non-router render-time crash is caught and logged with context; use GlobalErrorFallbackPage as the fallback renderer (helps prevent opaque production blank/fallback states and surfaces actionable diagnostics)."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Harden the global error fallback so it cannot crash in production and does not leak internal error details in production.",
+      "summary": "Make the global error fallback UI production-safe and impossible to crash, using browser-safe env checks and fully-guarded error detail rendering (English-only UI).",
       "acceptanceCriteria": [
-        "In a production build, the global error fallback page renders without referencing `process` (no \"process is not defined\" / similar errors).",
-        "In development mode, the fallback can optionally show the error message; in production, it must not expose internal error details.",
-        "The fallback continues to provide working “Reload page” and “Go to Home” actions."
+        "GlobalErrorFallbackPage renders without throwing even when `error` is `undefined`, a string, or a non-Error object.",
+        "No usage of `process.env.*` exists in runtime-executed frontend code paths for error fallback/handling.",
+        "All visible fallback UI strings are in English."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/GlobalErrorFallbackPage.tsx",
           "operation": "modify",
-          "description": "Implement a production-safe dev/prod switch using the bundler-provided mechanism (no `process` access), ensure error details are rendered only when explicitly in development, and guard against missing/invalid error objects. Keep all user-facing text in English. Use shadcn-ui components via composition only (read-only UI components constraint). Verify the component's usage instructions before implementing."
+          "description": "Fully harden fallback rendering: normalize unknown thrown values into safe strings, guard all property access and optional rendering, avoid any non-browser-safe globals, and keep `import.meta.env` as the only environment check; ensure all user-facing strings remain English."
         },
         {
-          "path": "frontend/src/components/error/GlobalErrorBoundary.tsx",
+          "path": "frontend/src/utils/errors.ts",
           "operation": "modify",
-          "description": "Ensure the error boundary reset behavior is robust and never assumes an Error shape; keep console logging safe and non-blocking. Verify the component's usage instructions before implementing."
+          "description": "Add/adjust helper(s) to safely extract a debug-friendly string (and stack when present) from unknown thrown values without throwing, so GlobalErrorFallbackPage and GlobalErrorBoundary can display/log consistent context safely."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Ensure SiteLayout and initial routing render even if actor creation or layout-level React Query calls fail, degrading non-critical UI gracefully.",
+      "summary": "Ensure SiteLayout and initial routing remain renderable even when actor creation, backend connectivity, or initial React Query calls fail by isolating non-critical UI and degrading gracefully.",
       "acceptanceCriteria": [
-        "If the backend actor is not ready or any layout-level query fails, the header/footer still render and navigation works; non-critical UI elements degrade gracefully (e.g., Admin link hidden, recent orders shows \"Unable to load\" rather than crashing).",
-        "No route-level errors are thrown solely due to layout-level hooks failing (e.g., `useIsOwner`, recent orders detail fetching).",
-        "Reloading the page after a transient connectivity issue successfully renders the app without requiring a hard refresh beyond the provided “Reload page” action."
+        "If the backend actor is not ready or backend calls fail, `SiteLayout` still renders header, footer, and the current route outlet.",
+        "Admin link is shown only when ownership is positively confirmed; otherwise it stays hidden without errors.",
+        "RecentOrdersMenu does not throw on load; when the actor is not ready it renders a disabled Orders button (or equivalent non-crashing UI)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Make actor creation resilient: catch and contain failures from actor/config initialization so the hook returns a safe state (e.g., actor null + error state) instead of propagating render-breaking exceptions. Ensure this aligns with the core-infrastructure backend connection configuration patterns. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Adjust layout-relevant query hooks (e.g., ownership/admin checks) to be strictly non-throwing and disabled when actor is unavailable; ensure they return safe defaults on failure without triggering route-level errors. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/layout/SiteLayout.tsx",
-          "operation": "modify",
-          "description": "Ensure layout never depends on successful actor/query completion to render. Keep Admin link logic strictly defensive and ensure any non-critical UI (admin link, recent orders) degrades gracefully when actor/query states are unavailable. Verify the component's usage instructions before implementing."
+          "path": "frontend/src/components/error/SafeSection.tsx",
+          "operation": "create",
+          "description": "Create a small wrapper component that uses the existing GlobalErrorBoundary to isolate non-critical header UI sections (e.g., RecentOrdersMenu) and render a safe, non-throwing fallback UI when a child crashes."
         },
         {
           "path": "frontend/src/components/orders/RecentOrdersMenu.tsx",
           "operation": "modify",
-          "description": "Ensure the recent orders dropdown remains stable when actor is unavailable or detail queries fail (retain/ensure the “Unable to load” behavior and avoid any assumptions that can throw during render). Verify the component's usage instructions before implementing."
+          "description": "Make RecentOrdersMenu resilient to partial/failed dependencies: guard against unexpected undefined values, ensure mapping over history/details cannot throw, and avoid assuming query results are present; keep the existing disabled state when actor is not ready."
+        },
+        {
+          "path": "frontend/src/components/layout/SiteLayout.tsx",
+          "operation": "modify",
+          "description": "Wrap RecentOrdersMenu with the new SafeSection so a failure in orders/history/query rendering cannot crash the entire app shell; keep admin link hidden unless ownership is positively confirmed; ensure header/footer/outlet always render even when non-critical queries fail."
         }
       ]
     }

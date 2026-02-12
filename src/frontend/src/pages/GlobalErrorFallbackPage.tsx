@@ -12,39 +12,72 @@ interface GlobalErrorFallbackPageProps {
 // Use Vite's import.meta.env instead of process.env (production-safe)
 const isDevelopment = import.meta.env.DEV;
 
+// Safely extract error message and stack from any thrown value
+function getErrorDetails(error: unknown): { message: string | null; stack: string | null } {
+  try {
+    if (!error) {
+      return { message: null, stack: null };
+    }
+    
+    let message: string | null = null;
+    let stack: string | null = null;
+    
+    // Extract message
+    if (error instanceof Error) {
+      message = error.message;
+      stack = error.stack || null;
+    } else if (typeof error === 'string') {
+      message = error;
+    } else if (typeof error === 'object' && 'message' in error) {
+      const msg = (error as { message: unknown }).message;
+      if (typeof msg === 'string') {
+        message = msg;
+      }
+      // Try to extract stack
+      if ('stack' in error) {
+        const stk = (error as { stack: unknown }).stack;
+        if (typeof stk === 'string') {
+          stack = stk;
+        }
+      }
+    }
+    
+    return { message, stack };
+  } catch {
+    return { message: 'Unable to extract error details', stack: null };
+  }
+}
+
 export function GlobalErrorFallbackPage({ error, reset }: GlobalErrorFallbackPageProps) {
   const navigate = useNavigate();
 
   const handleReload = () => {
-    if (reset) {
-      reset();
+    try {
+      if (reset) {
+        reset();
+      }
+    } catch {
+      // Ignore reset errors
     }
     window.location.reload();
   };
 
   const handleGoHome = () => {
-    if (reset) {
-      reset();
-    }
-    navigate({ to: '/' }).catch(() => {
-      // If navigation fails, just reload
+    try {
+      if (reset) {
+        reset();
+      }
+      navigate({ to: '/' }).catch(() => {
+        // If navigation fails, just reload
+        window.location.href = '/';
+      });
+    } catch {
+      // If everything fails, force reload
       window.location.href = '/';
-    });
-  };
-
-  // Safely extract error message
-  const getErrorMessage = (): string | null => {
-    if (!error) return null;
-    if (error instanceof Error) return error.message;
-    if (typeof error === 'string') return error;
-    if (error && typeof error === 'object' && 'message' in error) {
-      const msg = (error as { message: unknown }).message;
-      if (typeof msg === 'string') return msg;
     }
-    return null;
   };
 
-  const errorMessage = getErrorMessage();
+  const { message: errorMessage, stack: errorStack } = getErrorDetails(error);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -66,10 +99,21 @@ export function GlobalErrorFallbackPage({ error, reset }: GlobalErrorFallbackPag
             </AlertDescription>
           </Alert>
           {isDevelopment && errorMessage && (
-            <div className="rounded-md bg-muted p-4">
+            <div className="rounded-md bg-muted p-4 space-y-2">
+              <p className="text-sm font-semibold text-foreground">Error Details (dev only):</p>
               <p className="text-sm font-mono text-muted-foreground break-all">
                 {errorMessage}
               </p>
+              {errorStack && (
+                <details className="mt-2">
+                  <summary className="text-sm font-semibold text-foreground cursor-pointer">
+                    Stack Trace
+                  </summary>
+                  <pre className="mt-2 text-xs font-mono text-muted-foreground whitespace-pre-wrap break-all">
+                    {errorStack}
+                  </pre>
+                </details>
+              )}
             </div>
           )}
         </CardContent>

@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the production initial-load crash that renders only the global “Something went wrong” fallback, and make the error handling + layout resilient in production builds.
+**Goal:** Fix the production-only runtime crash that forces the app to show the global “Something went wrong” fallback on initial load, and make the app shell resilient to backend/actor/query failures.
 
 **Planned changes:**
-- Identify and fix the root cause of the production runtime error that triggers the global error fallback on initial load (especially on the root route) so the Home page renders normally.
-- Harden the global error fallback so it is safe in production builds (no `process` references), keeps all user-facing text in English, optionally shows error details only in development, and preserves working “Reload page” and “Go to Home” actions.
-- Update the app shell (SiteLayout) and routing to tolerate backend/actor initialization failures and non-critical layout-level query failures by degrading gracefully instead of crashing (e.g., hide Admin link when owner check fails; show “Unable to load” for recent orders when that query fails).
+- Identify and fix the root cause of the production runtime error so `/` renders normally without triggering the TanStack Router `errorComponent`.
+- Harden `GlobalErrorFallbackPage` so it never throws in production (browser-safe env checks using `import.meta.env` only, and safe rendering for unknown/undefined thrown values), keeping all fallback text in English.
+- Update `SiteLayout` and non-critical initial queries (e.g., ownership/admin checks, recent orders dropdown) to fail gracefully when actor/backend/React Query calls fail (hide admin link unless confirmed, disable Orders menu, avoid throwing) while still rendering the layout and current route outlet.
 
-**User-visible outcome:** Opening the production URL loads the normal Home page UI (header + hero) without console crashes on mobile browsers, and if a transient backend/query issue occurs the site still loads with graceful fallbacks instead of a full-app error screen.
+**User-visible outcome:** In production, visiting `/` loads the Home page within `SiteLayout` without a global error screen; if backend connectivity or initial calls fail, the app still renders and non-critical UI elements degrade gracefully instead of crashing.

@@ -21,11 +21,13 @@ export function RecentOrdersMenu() {
   const { actor, isFetching } = useActor();
   
   // Get details for the first 5 recent orders
-  const recentOrderIds = historyEntries.slice(0, 5).map((e) => e.orderId);
+  const recentOrderIds = (historyEntries || []).slice(0, 5).map((e) => e.orderId);
   const { orders: orderDetails, isLoading: detailsLoading } = useOrderHistoryDetails(recentOrderIds);
 
-  // Create a map for quick lookup
-  const orderDetailsMap = new Map(orderDetails.map((o) => [o.id, o]));
+  // Create a map for quick lookup with safe fallback
+  const orderDetailsMap = new Map(
+    (orderDetails || []).filter(o => o && o.id).map((o) => [o.id, o])
+  );
 
   // If actor is not ready, show a disabled state
   const isActorReady = !!actor && !isFetching;
@@ -52,65 +54,55 @@ export function RecentOrdersMenu() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
-        <DropdownMenuLabel className="flex items-center gap-2">
-          <Package className="h-4 w-4" />
-          Recent Orders
-        </DropdownMenuLabel>
+        <DropdownMenuLabel>Recent Orders</DropdownMenuLabel>
         <DropdownMenuSeparator />
         
-        {historyLoading ? (
+        {historyLoading || detailsLoading ? (
           <div className="p-4 text-center text-sm text-muted-foreground">
-            Loading order history...
+            Loading orders...
           </div>
         ) : !hasOrders ? (
           <div className="p-4 text-center text-sm text-muted-foreground">
-            No recent orders yet.
+            No orders yet
           </div>
         ) : (
           <>
-            <div className="max-h-[300px] overflow-y-auto">
-              {recentOrderIds.map((orderId) => {
-                const entry = historyEntries.find((e) => e.orderId === orderId);
-                const orderDetail = orderDetailsMap.get(orderId);
-                const status = orderDetail?.status || entry?.lastKnownStatus;
-                
-                // Use simplified status labels
-                const { label: statusLabel } = status 
-                  ? getSimplifiedOrderStatus(status as OrderStatus)
-                  : { label: 'Unknown' };
-                const badgeVariant = status 
-                  ? getStatusBadgeVariant(status as OrderStatus)
-                  : 'outline';
+            {(historyEntries || []).slice(0, 5).map((entry) => {
+              if (!entry || !entry.orderId) return null;
+              
+              const details = orderDetailsMap.get(entry.orderId);
+              const status = details?.status;
+              const simplifiedStatus = status ? getSimplifiedOrderStatus(status).label : 'Unknown';
+              const badgeVariant = status ? getStatusBadgeVariant(status) : 'secondary';
 
-                return (
-                  <DropdownMenuItem key={orderId} asChild>
-                    <Link
-                      to="/order/$orderId"
-                      params={{ orderId }}
-                      className="flex items-center justify-between gap-2 cursor-pointer"
-                    >
-                      <div className="flex flex-col gap-1 flex-1 min-w-0">
+              return (
+                <DropdownMenuItem key={entry.orderId} asChild>
+                  <Link
+                    to="/order/$orderId"
+                    params={{ orderId: entry.orderId }}
+                    className="flex items-center justify-between gap-2 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Package className="h-4 w-4 flex-shrink-0" />
+                      <div className="flex flex-col min-w-0">
                         <span className="text-sm font-medium truncate">
-                          {orderId}
+                          Order {entry.orderId.slice(0, 8)}...
                         </span>
-                        {status && (
-                          <Badge variant={badgeVariant} className="w-fit text-xs">
-                            {statusLabel}
-                          </Badge>
-                        )}
-                        {!orderDetail && detailsLoading && (
-                          <span className="text-xs text-muted-foreground">Loading...</span>
-                        )}
-                        {!orderDetail && !detailsLoading && (
-                          <span className="text-xs text-muted-foreground">Unable to load</span>
-                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(entry.lastSeen).toLocaleDateString()}
+                        </span>
                       </div>
-                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                    </Link>
-                  </DropdownMenuItem>
-                );
-              })}
-            </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Badge variant={badgeVariant} className="text-xs">
+                        {simplifiedStatus}
+                      </Badge>
+                      <ExternalLink className="h-3 w-3" />
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+              );
+            })}
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link
@@ -118,6 +110,7 @@ export function RecentOrdersMenu() {
                 className="flex items-center justify-center gap-2 cursor-pointer font-medium"
               >
                 View All Orders
+                <ExternalLink className="h-4 w-4" />
               </Link>
             </DropdownMenuItem>
           </>

@@ -6,6 +6,7 @@ import { useInternetIdentity } from '@/hooks/useInternetIdentity';
 import { useIsOwner } from '@/hooks/useQueries';
 import { useActor } from '@/hooks/useActor';
 import { RecentOrdersMenu } from '@/components/orders/RecentOrdersMenu';
+import { SafeSection } from '@/components/error/SafeSection';
 
 interface SiteLayoutProps {
   children: React.ReactNode;
@@ -82,7 +83,9 @@ export function SiteLayout({ children }: SiteLayoutProps) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <RecentOrdersMenu />
+            <SafeSection>
+              <RecentOrdersMenu />
+            </SafeSection>
             <Button 
               onClick={() => navigate({ to: '/catalog' })}
               className="gap-2"
