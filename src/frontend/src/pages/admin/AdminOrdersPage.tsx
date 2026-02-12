@@ -2,14 +2,15 @@ import { useNavigate } from '@tanstack/react-router';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useGetAllOrders } from '@/hooks/useQueries';
 import { OrderStatus } from '@/backend';
-import { Loader2, Eye, Package } from 'lucide-react';
+import { Loader2, Eye, Package, AlertCircle } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const navigate = useNavigate();
-  const { data: orders, isLoading } = useGetAllOrders();
+  const { data: orders, isLoading, isError, error } = useGetAllOrders();
 
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
@@ -25,6 +26,25 @@ export default function AdminOrdersPage() {
         return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  if (isError) {
+    return (
+      <div className="container py-12 max-w-2xl">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load orders. You may not have permission to access this page.
+          </AlertDescription>
+        </Alert>
+        <Button 
+          className="mt-4"
+          onClick={() => navigate({ to: '/' })}
+        >
+          Back to Home
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-12">

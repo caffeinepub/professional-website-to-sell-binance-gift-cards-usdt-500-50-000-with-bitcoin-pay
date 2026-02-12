@@ -79,12 +79,43 @@ export function BitcoinPaymentInstructions({
           </div>
 
           <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-3">
-            <div>
-              <span className="text-sm font-medium">Bitcoin Amount</span>
-              <p className="font-mono text-lg font-bold mt-1">{btcAmount} BTC</p>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Bitcoin Address</span>
+            </div>
+            <p className="font-mono text-sm break-all bg-background p-3 rounded border">
+              {btcAddress}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => copyToClipboard(btcAddress, setCopiedAddress)}
+            >
+              {copiedAddress ? (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy Address
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Amount to Send</span>
+            </div>
+            <div className="space-y-2">
+              <p className="font-mono text-2xl font-bold bg-background p-3 rounded border">
+                {btcAmount} BTC
+              </p>
               {usdtAmount > 0 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  ≈ ${usdtAmount.toLocaleString()} USDT
+                <p className="text-sm text-muted-foreground">
+                  ≈ ${usdtAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
                 </p>
               )}
             </div>
@@ -107,49 +138,39 @@ export function BitcoinPaymentInstructions({
               )}
             </Button>
           </div>
-
-          <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-3">
-            <div>
-              <span className="text-sm font-medium">Payment Address</span>
-              <p className="font-mono text-sm break-all mt-1">{btcAddress}</p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() => copyToClipboard(btcAddress, setCopiedAddress)}
-            >
-              {copiedAddress ? (
-                <>
-                  <Check className="mr-2 h-4 w-4" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy Address
-                </>
-              )}
-            </Button>
-          </div>
         </div>
 
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-          <h4 className="font-semibold mb-2 text-sm">Payment Steps:</h4>
-          <ol className="space-y-2 text-sm text-muted-foreground">
-            <li>1. Copy the Bitcoin address above</li>
-            <li>2. Send exactly {btcAmount} BTC to the address</li>
-            <li>3. Include Order ID "{orderId}" in transaction memo (if supported)</li>
-            <li>4. Wait for payment confirmation (usually 10-30 minutes)</li>
-            <li>5. Your gift card will be delivered after verification</li>
-          </ol>
-        </div>
+          <h4 className="font-semibold mb-3 flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+              1
+            </span>
+            Send Payment
+          </h4>
+          <p className="text-sm text-muted-foreground mb-4">
+            Send exactly <span className="font-mono font-semibold text-foreground">{btcAmount} BTC</span> to the address above.
+          </p>
 
-        <Alert>
-          <AlertDescription className="text-xs">
-            <strong>Important:</strong> Send only Bitcoin (BTC) to this address. Sending any other cryptocurrency will result in permanent loss of funds.
-          </AlertDescription>
-        </Alert>
+          <h4 className="font-semibold mb-3 flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+              2
+            </span>
+            Include Order ID
+          </h4>
+          <p className="text-sm text-muted-foreground mb-4">
+            Add your Order ID (<span className="font-mono font-semibold text-foreground">{orderId}</span>) in the transaction memo or note field.
+          </p>
+
+          <h4 className="font-semibold mb-3 flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+              3
+            </span>
+            Wait for Confirmation
+          </h4>
+          <p className="text-sm text-muted-foreground">
+            Your order will be processed once the payment is confirmed on the blockchain. This typically takes 10-30 minutes.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

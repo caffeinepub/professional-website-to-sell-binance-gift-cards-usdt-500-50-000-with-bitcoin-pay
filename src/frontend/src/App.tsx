@@ -1,5 +1,6 @@
 import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet } from '@tanstack/react-router';
 import { SiteLayout } from './components/layout/SiteLayout';
+import { AdminRouteGuard } from './components/auth/AdminRouteGuard';
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -42,13 +43,21 @@ const orderStatusRoute = createRoute({
 const adminOrdersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin/orders',
-  component: AdminOrdersPage,
+  component: () => (
+    <AdminRouteGuard>
+      <AdminOrdersPage />
+    </AdminRouteGuard>
+  ),
 });
 
 const adminOrderDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin/orders/$orderId',
-  component: AdminOrderDetailPage,
+  component: () => (
+    <AdminRouteGuard>
+      <AdminOrderDetailPage />
+    </AdminRouteGuard>
+  ),
 });
 
 const routeTree = rootRoute.addChildren([

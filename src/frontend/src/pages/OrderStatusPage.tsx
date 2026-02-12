@@ -56,6 +56,11 @@ export default function OrderStatusPage() {
     );
   }
 
+  // Calculate USDT amount from BTC amount (reverse of checkout calculation)
+  // Using the same conversion rate: btcAmount = usdtAmount / 45000
+  // Therefore: usdtAmount = btcAmount * 45000
+  const estimatedUsdtAmount = parseFloat(order.amountInBitcoin) * 45000;
+
   return (
     <div className="container py-12 max-w-4xl">
       <div className="mb-8">
@@ -104,7 +109,7 @@ export default function OrderStatusPage() {
                   orderId={order.id}
                   btcAddress={order.btcPaymentAddress}
                   btcAmount={order.amountInBitcoin}
-                  usdtAmount={0}
+                  usdtAmount={estimatedUsdtAmount}
                 />
               </>
             )}

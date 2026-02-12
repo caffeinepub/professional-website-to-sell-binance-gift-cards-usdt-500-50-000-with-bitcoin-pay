@@ -23,13 +23,20 @@ export type OrderStatus = { 'cancelled' : null } |
   { 'paid' : null } |
   { 'pendingPayment' : null } |
   { 'delivered' : null };
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createOrder' : ActorMethod<
     [OrderId, string, BitcoinAddress, string],
     undefined
   >,
   'getAllOrders' : ActorMethod<[], Array<Order>>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getOrder' : ActorMethod<[OrderId], Order>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
   'updateOrderStatus' : ActorMethod<[OrderId, OrderStatus], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

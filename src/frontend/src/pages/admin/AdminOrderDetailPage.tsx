@@ -14,7 +14,7 @@ import { Loader2, AlertCircle, ArrowLeft, Save } from 'lucide-react';
 export default function AdminOrderDetailPage() {
   const { orderId } = useParams({ strict: false }) as { orderId: string };
   const navigate = useNavigate();
-  const { data: order, isLoading, isError } = useGetOrder(orderId);
+  const { data: order, isLoading, isError, error } = useGetOrder(orderId);
   const updateStatusMutation = useUpdateOrderStatus();
   
   const [newStatus, setNewStatus] = useState<OrderStatus | null>(null);
@@ -47,7 +47,9 @@ export default function AdminOrderDetailPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Order not found.
+            {isError && error instanceof Error && error.message.includes('Access denied')
+              ? 'Access denied. You do not have permission to view this order.'
+              : 'Order not found or you do not have permission to view it.'}
           </AlertDescription>
         </Alert>
         <Button 
@@ -180,7 +182,9 @@ export default function AdminOrderDetailPage() {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Failed to update status. Please try again.
+                  {updateStatusMutation.error instanceof Error && updateStatusMutation.error.message.includes('Access denied')
+                    ? 'Access denied. You do not have permission to update order status.'
+                    : 'Failed to update status. Please try again.'}
                 </AlertDescription>
               </Alert>
             )}

@@ -8,6 +8,11 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
 export const OrderId = IDL.Text;
 export const BitcoinAddress = IDL.Text;
 export const OrderStatus = IDL.Variant({
@@ -25,19 +30,28 @@ export const Order = IDL.Record({
 });
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createOrder' : IDL.Func(
       [OrderId, IDL.Text, BitcoinAddress, IDL.Text],
       [],
       [],
     ),
   'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getOrder' : IDL.Func([OrderId], [Order], ['query']),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'updateOrderStatus' : IDL.Func([OrderId, OrderStatus], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
   const OrderId = IDL.Text;
   const BitcoinAddress = IDL.Text;
   const OrderStatus = IDL.Variant({
@@ -55,13 +69,17 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createOrder' : IDL.Func(
         [OrderId, IDL.Text, BitcoinAddress, IDL.Text],
         [],
         [],
       ),
     'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getOrder' : IDL.Func([OrderId], [Order], ['query']),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'updateOrderStatus' : IDL.Func([OrderId, OrderStatus], [], []),
   });
 };

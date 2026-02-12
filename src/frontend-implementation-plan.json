@@ -1,212 +1,76 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Binance Gift Cards Storefront (USDT denominations) with manual Bitcoin payment instructions",
+  "title": "Discount BTC payment instructions by 50% and owner-only Admin UI access (frontend-only)",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Build a responsive English marketing + storefront experience highlighting Binance Gift Cards and the $500–$50,000 USDT range.",
+      "id": "REQ-10",
+      "summary": "Apply a global 50% pricing rule for BTC payment instructions across Checkout success and pending-payment Order Status views.",
       "acceptanceCriteria": [
-        "Homepage clearly states the product (Binance Gift Cards) and shows the available denomination range ($500–$50,000 USDT).",
-        "Storefront works well on mobile and desktop with consistent spacing, typography, and layout.",
-        "All user-facing text is in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "create",
-          "description": "Create the app shell and route wiring for required views (home/marketing, catalog, checkout, order lookup, admin). Use shadcn-ui components (e.g., layout primitives, buttons, cards) for a professional storefront UI. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/layout/SiteLayout.tsx",
-          "operation": "create",
-          "description": "Create a reusable storefront layout (header/nav/footer) with consistent spacing and responsive behavior, used across pages. Use shadcn-ui components for navigation buttons/menus and consistent styling. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/HomePage.tsx",
-          "operation": "create",
-          "description": "Implement the marketing homepage content in English: product explanation, denomination range callout ($500–$50,000 USDT), and clear calls-to-action to browse catalog and start checkout. Use shadcn-ui components (Card/Button) for sections. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/storefront/DenominationRangeCallout.tsx",
-          "operation": "create",
-          "description": "Create a small reusable callout component used on the homepage and catalog to consistently show the denomination range and key selling points. Use shadcn-ui components for badges/typography where appropriate. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Add a catalog UI to select denomination and quantity, compute totals in USDT, and persist selection through checkout within the session.",
-      "acceptanceCriteria": [
-        "Users can select a denomination (within $500–$50,000 USDT) and quantity.",
-        "UI shows computed totals in USDT (denomination × quantity).",
-        "Selections persist through navigation to checkout (within the same session)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/CatalogPage.tsx",
-          "operation": "create",
-          "description": "Build a catalog/builder UI to choose a fixed USDT denomination ($500–$50,000) and quantity, showing computed total in USDT. Use shadcn-ui form components (Select/Input/Button/Card) to ensure consistent UX. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/state/cartSession.ts",
-          "operation": "create",
-          "description": "Implement session-persisted selection state (denomination, quantity, computed totals) using sessionStorage (or equivalent) so selections survive navigation during the session."
-        },
-        {
-          "path": "frontend/src/components/storefront/DenominationSelector.tsx",
-          "operation": "create",
-          "description": "Create a reusable denomination selector constrained to the allowed range and fixed options, used in catalog and optionally in checkout review. Use shadcn-ui Select and related form components. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/storefront/QuantitySelector.tsx",
-          "operation": "create",
-          "description": "Create a reusable quantity selector with validation and accessible controls. Use shadcn-ui Input/Button components where appropriate. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Wire the catalog route into navigation and ensure selecting 'Continue to checkout' transitions with session-persisted selections."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Implement checkout UI that collects buyer contact details and displays Bitcoin payment instructions with an order reference, using backend order creation and retrieval by ID.",
-      "acceptanceCriteria": [
-        "Checkout collects at least: buyer name and an email (or other single contact field) and an optional note.",
-        "Checkout shows: amount due (in USDT), a Bitcoin payment address, and an order reference/ID to include with payment.",
-        "Order is created in the backend and can be retrieved by its ID from the frontend.",
-        "No third-party payment provider integration is required for checkout to function."
+        "On Checkout, after clicking “Create Order & Get Payment Instructions”, the displayed BTC amount is calculated from (cartSession.total * 0.5) instead of (cartSession.total).",
+        "The BitcoinPaymentInstructions component’s “≈ $X USDT” line shows the discounted USDT amount (half of the selected total), not the original total.",
+        "On the Order Status page, when an order is in Pending Payment, the BitcoinPaymentInstructions section also shows the discounted USDT approximation (not 0).",
+        "Backend order data includes a field for the discounted USDT amount (or equivalent) so the Order Status page can display it without relying on cart/session state.",
+        "Existing (non-admin) order creation and order lookup flows continue to work without requiring login."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/CheckoutPage.tsx",
-          "operation": "create",
-          "description": "Create a checkout page that reads the session selection, collects buyer contact (name + email or a single contact field) and optional note, then triggers backend order creation and renders payment instructions with the returned/assigned order reference. Use shadcn-ui form components and cards for a professional checkout UI. Verify the component's usage instructions before implementing."
+          "operation": "modify",
+          "description": "Update the BTC amount calculation and the captured OrderSnapshot.usdtAmount to be based on a discounted total (cartSession.total * 0.5), so the Checkout success view payment instructions reflect the 50% rule."
         },
         {
           "path": "frontend/src/pages/OrderStatusPage.tsx",
-          "operation": "create",
-          "description": "Create an order lookup/status page that fetches an order by ID and shows buyer-facing status and payment details/instructions. Use shadcn-ui components (Card/Badge) for status presentation. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/services/backendOrders.ts",
-          "operation": "create",
-          "description": "Implement a thin frontend service that calls available backend capabilities (create order, get order by ID) using the project's core-infrastructure backend connection approach, typed against frontend/src/backend.d.ts."
+          "operation": "modify",
+          "description": "For Pending Payment orders, pass a non-zero discounted USDT approximation into BitcoinPaymentInstructions by deriving it from the stored order BTC amount using the same fixed conversion basis used at checkout (so the instructions remain consistent without cart/session state)."
         },
         {
           "path": "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx",
-          "operation": "create",
-          "description": "Create a reusable payment-instructions component that displays Bitcoin address, order reference/ID, and clear manual payment steps (no automatic verification). Use shadcn-ui components for copy-to-clipboard buttons and alerts where available. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Wire checkout and order-status routes (including navigation from checkout success to order status by ID) so buyers can retrieve their order by ID."
+          "description": "Ensure the “≈ $X USDT” line displays the discounted USDT amount provided by callers, and remains hidden only when the amount is genuinely unavailable (not due to passing 0)."
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Add a minimal admin UI (no external auth) to list orders and update order status manually, and ensure buyers can see updated status by ID.",
+      "id": "REQ-11",
+      "summary": "Restrict Admin Panel UI access to the configured owner using Internet Identity and show English login-required / access-denied experiences.",
       "acceptanceCriteria": [
-        "Admin screen lists recent orders with key fields (order ID, total USDT, status, created time).",
-        "Admin can open an order detail view and change status.",
-        "Status changes persist and are visible to the buyer when they view the order by ID."
+        "Visiting /admin/orders or /admin/orders/:orderId as an anonymous user prompts login (Internet Identity) or shows a clear English message indicating login is required.",
+        "After login, only the configured owner identity can view AdminOrdersPage and AdminOrderDetailPage; non-owner authenticated users see an English “Access denied” message and cannot view admin data.",
+        "Backend enforces owner-only authorization for getAllOrders and updateOrderStatus (and any other admin-only methods); non-owner calls fail even if the frontend is bypassed.",
+        "Owner can still successfully view all orders and update statuses from the admin UI.",
+        "User-facing error messages for blocked admin access are in English and do not expose sensitive internals."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/admin/AdminOrdersPage.tsx",
+          "path": "frontend/src/components/auth/AdminRouteGuard.tsx",
           "operation": "create",
-          "description": "Create an admin orders list screen that fetches and displays recent orders with key fields, using a table/list UI. Use shadcn-ui Table/Badge/Button components for consistent admin UI. Verify the component's usage instructions before implementing."
+          "description": "Create an admin-only route guard that uses Internet Identity to require login and uses the authorization component’s role-based capability (via backend role checks) to allow only the owner/admin; render English “Login required” or “Access denied” states when blocked. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a react-query hook (e.g., useIsCallerAdmin / useCallerRole) that checks whether the current caller is admin/owner for use by AdminRouteGuard and navigation gating. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wire AdminRouteGuard into the /admin/orders and /admin/orders/$orderId route components so admin pages are not directly rendered unless the user is authenticated and authorized. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/layout/SiteLayout.tsx",
+          "operation": "modify",
+          "description": "Update header/footer navigation to hide or disable the Admin link for non-owner users by consulting the admin/owner check; keep all user-facing text in English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminOrdersPage.tsx",
+          "operation": "modify",
+          "description": "Harden the admin list UI to handle authorization failures gracefully (English message, no sensitive error details) in case the guard is bypassed or role checks change. Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/pages/admin/AdminOrderDetailPage.tsx",
-          "operation": "create",
-          "description": "Create an admin order detail view to inspect an order and manually update status (Pending Payment/Paid/Delivered/Cancelled). Use shadcn-ui Select/Button components for status changes. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/services/backendOrders.ts",
           "operation": "modify",
-          "description": "Extend the frontend service to call backend capabilities to list all orders and update order status, typed against frontend/src/backend.d.ts."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Wire admin routes into the app (e.g., /admin/orders and /admin/orders/:id) and add a minimal navigation entry in the header/footer (no external authentication)."
-        },
-        {
-          "path": "frontend/src/pages/OrderStatusPage.tsx",
-          "operation": "modify",
-          "description": "Ensure the buyer-facing order status view reflects updated status values after admin changes (including refresh/reload behavior)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Apply a consistent professional crypto storefront theme (avoid blue/purple) using Tailwind and composition with existing UI components.",
-      "acceptanceCriteria": [
-        "Theme is applied consistently across homepage, catalog, checkout, and admin pages.",
-        "Primary colors are not blue/purple unless explicitly requested later.",
-        "UI uses Tailwind + existing UI components via composition (no edits to immutable UI component sources)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/index.css",
-          "operation": "create",
-          "description": "Define a coherent warm dark theme via CSS variables used by Tailwind/shadcn-ui tokens (avoid blue/purple primaries), set base typography, and ensure consistent surfaces/borders across pages."
-        },
-        {
-          "path": "frontend/tailwind.config.js",
-          "operation": "modify",
-          "description": "Adjust Tailwind theme extensions (if needed) to support the chosen warm dark palette, typography defaults, and consistent container/section spacing without introducing blue/purple as primary accents."
-        },
-        {
-          "path": "frontend/src/components/layout/SiteLayout.tsx",
-          "operation": "modify",
-          "description": "Apply consistent section layouts, button hierarchy, and typography tokens through the shared layout and navigation. Use shadcn-ui components through composition only (no edits to immutable sources). Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Add required generated static images under frontend/public/assets/generated and render them in the UI (no backend image serving).",
-      "acceptanceCriteria": [
-        "Generated images exist under frontend/public/assets/generated with the specified filenames.",
-        "Homepage and/or header uses the logo and hero image.",
-        "Catalog uses the product illustration asset in a visually consistent way."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/public/assets/generated/logo-giftcards.dim_512x512.png",
-          "operation": "create",
-          "description": "Add the generated logo image asset at frontend/public/assets/generated/logo-giftcards.dim_512x512.png (static asset; do not serve via backend)."
-        },
-        {
-          "path": "frontend/public/assets/generated/hero-giftcards.dim_1600x600.png",
-          "operation": "create",
-          "description": "Add the generated hero banner image asset at frontend/public/assets/generated/hero-giftcards.dim_1600x600.png (static asset; do not serve via backend)."
-        },
-        {
-          "path": "frontend/public/assets/generated/product-giftcard-illustration.dim_800x800.png",
-          "operation": "create",
-          "description": "Add the generated product illustration asset at frontend/public/assets/generated/product-giftcard-illustration.dim_800x800.png (static asset; do not serve via backend)."
-        },
-        {
-          "path": "frontend/src/components/layout/SiteLayout.tsx",
-          "operation": "modify",
-          "description": "Render the logo from frontend/public/assets/generated/logo-giftcards.dim_512x512.png in the header branding area and ensure it remains responsive. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/HomePage.tsx",
-          "operation": "modify",
-          "description": "Render the hero image from frontend/public/assets/generated/hero-giftcards.dim_1600x600.png in the homepage hero section with a consistent overlay/layout matching the theme. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/CatalogPage.tsx",
-          "operation": "modify",
-          "description": "Use the product illustration from frontend/public/assets/generated/product-giftcard-illustration.dim_800x800.png in the catalog UI to visually reinforce the product. Verify the component's usage instructions before implementing."
+          "description": "Harden the admin detail/update UI to handle authorization failures gracefully (English message, no sensitive error details) for both reading and status update attempts. Verify the component's usage instructions before implementing."
         }
       ]
     }

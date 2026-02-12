@@ -11,6 +11,13 @@ import { getCartSession, clearCartSession } from '@/state/cartSession';
 import { useCreateOrder } from '@/hooks/useQueries';
 import { Loader2, AlertCircle, ShoppingCart } from 'lucide-react';
 
+interface OrderSnapshot {
+  orderId: string;
+  btcAddress: string;
+  btcAmount: string;
+  usdtAmount: number;
+}
+
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const cartSession = getCartSession();
@@ -19,8 +26,117 @@ export default function CheckoutPage() {
   const [buyerName, setBuyerName] = useState('');
   const [buyerEmail, setBuyerEmail] = useState('');
   const [buyerNote, setBuyerNote] = useState('');
-  const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderSnapshot, setOrderSnapshot] = useState<OrderSnapshot | null>(null);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
+  // Clear error when user edits form
+  const handleInputChange = (setter: (value: string) => void) => (value: string) => {
+    setSubmissionError(null);
+    setter(value);
+  };
+
+  const handleSubmitOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmissionError(null);
+    
+    if (!buyerName || !buyerEmail) {
+      setSubmissionError('Please fill in all required fields.');
+      return;
+    }
+
+    if (!cartSession) {
+      setSubmissionError('Your cart session has expired. Please return to the catalog.');
+      return;
+    }
+
+    const newOrderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const buyerContact = `${buyerName} <${buyerEmail}>${buyerNote ? ` | Note: ${buyerNote}` : ''}`;
+    
+    // Apply 50% discount to the total
+    const discountedTotal = cartSession.total * 0.5;
+    
+    // For demo purposes, using a fixed BTC address and amount
+    // In production, this would be calculated based on current BTC/USDT rate
+    const btcAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
+    const btcAmount = (discountedTotal / 45000).toFixed(8); // Rough estimate with discounted amount
+    const usdtAmount = discountedTotal;
+
+    try {
+      await createOrderMutation.mutateAsync({
+        id: newOrderId,
+        buyerContact,
+        btcPaymentAddress: btcAddress,
+        amountInBitcoin: btcAmount,
+      });
+      
+      // Capture stable snapshot BEFORE clearing cart
+      setOrderSnapshot({
+        orderId: newOrderId,
+        btcAddress,
+        btcAmount,
+        usdtAmount,
+      });
+      
+      // Now safe to clear cart
+      clearCartSession();
+    } catch (error) {
+      console.error('Order creation failed:', error);
+      
+      // Map error to user-friendly message
+      let errorMessage = 'Failed to create order. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('Actor not initialized')) {
+          errorMessage = 'Connection to the backend is not ready. Please wait a moment and try again.';
+        } else if (error.message.includes('already exists')) {
+          errorMessage = 'This order already exists. Please refresh the page and try again.';
+        } else {
+          errorMessage = `Error: ${error.message}`;
+        }
+      }
+      setSubmissionError(errorMessage);
+    }
+  };
+
+  // Prioritize success view over "no cart" check
+  if (orderSnapshot) {
+    return (
+      <div className="container py-12 max-w-4xl">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Order Created Successfully!</CardTitle>
+            <CardDescription>
+              Your order has been created. Please complete the Bitcoin payment to proceed.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <BitcoinPaymentInstructions 
+              orderId={orderSnapshot.orderId}
+              btcAddress={orderSnapshot.btcAddress}
+              btcAmount={orderSnapshot.btcAmount}
+              usdtAmount={orderSnapshot.usdtAmount}
+            />
+            
+            <div className="flex gap-4">
+              <Button 
+                onClick={() => navigate({ to: `/order/${orderSnapshot.orderId}` })}
+                className="flex-1"
+              >
+                View Order Status
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate({ to: '/catalog' })}
+              >
+                Browse More Cards
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Now check for cart session
   if (!cartSession) {
     return (
       <div className="container py-12">
@@ -36,74 +152,6 @@ export default function CheckoutPage() {
         >
           Go to Catalog
         </Button>
-      </div>
-    );
-  }
-
-  const handleSubmitOrder = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!buyerName || !buyerEmail) {
-      return;
-    }
-
-    const newOrderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const buyerContact = `${buyerName} <${buyerEmail}>${buyerNote ? ` | Note: ${buyerNote}` : ''}`;
-    
-    // For demo purposes, using a fixed BTC address and amount
-    // In production, this would be calculated based on current BTC/USDT rate
-    const btcAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
-    const btcAmount = (cartSession.total / 45000).toFixed(8); // Rough estimate
-
-    try {
-      await createOrderMutation.mutateAsync({
-        id: newOrderId,
-        buyerContact,
-        btcPaymentAddress: btcAddress,
-        amountInBitcoin: btcAmount,
-      });
-      
-      setOrderId(newOrderId);
-      clearCartSession();
-    } catch (error) {
-      console.error('Order creation failed:', error);
-    }
-  };
-
-  if (orderId) {
-    return (
-      <div className="container py-12 max-w-4xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Order Created Successfully!</CardTitle>
-            <CardDescription>
-              Your order has been created. Please complete the Bitcoin payment to proceed.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <BitcoinPaymentInstructions 
-              orderId={orderId}
-              btcAddress="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
-              btcAmount={(cartSession.total / 45000).toFixed(8)}
-              usdtAmount={cartSession.total}
-            />
-            
-            <div className="flex gap-4">
-              <Button 
-                onClick={() => navigate({ to: `/order/${orderId}` })}
-                className="flex-1"
-              >
-                View Order Status
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => navigate({ to: '/catalog' })}
-              >
-                Browse More Cards
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     );
   }
@@ -134,7 +182,7 @@ export default function CheckoutPage() {
                     id="buyerName"
                     placeholder="John Doe"
                     value={buyerName}
-                    onChange={(e) => setBuyerName(e.target.value)}
+                    onChange={(e) => handleInputChange(setBuyerName)(e.target.value)}
                     required
                   />
                 </div>
@@ -146,7 +194,7 @@ export default function CheckoutPage() {
                     type="email"
                     placeholder="john@example.com"
                     value={buyerEmail}
-                    onChange={(e) => setBuyerEmail(e.target.value)}
+                    onChange={(e) => handleInputChange(setBuyerEmail)(e.target.value)}
                     required
                   />
                 </div>
@@ -157,7 +205,7 @@ export default function CheckoutPage() {
                     id="buyerNote"
                     placeholder="Any special instructions or notes..."
                     value={buyerNote}
-                    onChange={(e) => setBuyerNote(e.target.value)}
+                    onChange={(e) => handleInputChange(setBuyerNote)(e.target.value)}
                     rows={3}
                   />
                 </div>
@@ -178,11 +226,11 @@ export default function CheckoutPage() {
                   )}
                 </Button>
 
-                {createOrderMutation.isError && (
+                {submissionError && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      Failed to create order. Please try again.
+                      {submissionError}
                     </AlertDescription>
                   </Alert>
                 )}

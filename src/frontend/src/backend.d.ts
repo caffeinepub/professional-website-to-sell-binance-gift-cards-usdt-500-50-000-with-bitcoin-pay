@@ -22,9 +22,17 @@ export enum OrderStatus {
     pendingPayment = "pendingPayment",
     delivered = "delivered"
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createOrder(id: OrderId, buyerContact: string, btcPaymentAddress: BitcoinAddress, amountInBitcoin: string): Promise<void>;
     getAllOrders(): Promise<Array<Order>>;
+    getCallerUserRole(): Promise<UserRole>;
     getOrder(id: OrderId): Promise<Order>;
+    isCallerAdmin(): Promise<boolean>;
     updateOrderStatus(id: OrderId, newStatus: OrderStatus): Promise<void>;
 }

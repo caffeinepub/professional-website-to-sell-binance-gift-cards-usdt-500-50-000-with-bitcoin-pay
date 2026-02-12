@@ -25,6 +25,7 @@ export function useGetAllOrders() {
       return actor.getAllOrders();
     },
     enabled: !!actor && !isFetching,
+    retry: false,
   });
 }
 
@@ -69,5 +70,19 @@ export function useUpdateOrderStatus() {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
     },
+  });
+}
+
+export function useIsCallerAdmin() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['isCallerAdmin'],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.isCallerAdmin();
+    },
+    enabled: !!actor && !isFetching,
+    retry: false,
   });
 }

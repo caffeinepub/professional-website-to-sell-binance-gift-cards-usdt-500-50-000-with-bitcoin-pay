@@ -2,6 +2,8 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Package, Shield } from 'lucide-react';
 import { SiBitcoin } from 'react-icons/si';
+import { useInternetIdentity } from '@/hooks/useInternetIdentity';
+import { useIsCallerAdmin } from '@/hooks/useQueries';
 
 interface SiteLayoutProps {
   children: React.ReactNode;
@@ -9,8 +11,12 @@ interface SiteLayoutProps {
 
 export function SiteLayout({ children }: SiteLayoutProps) {
   const navigate = useNavigate();
+  const { identity } = useInternetIdentity();
+  const { data: isAdmin } = useIsCallerAdmin();
   const currentYear = new Date().getFullYear();
   const appIdentifier = typeof window !== 'undefined' ? window.location.hostname : 'binance-giftcards';
+
+  const showAdminLink = !!identity && isAdmin;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -41,12 +47,14 @@ export function SiteLayout({ children }: SiteLayoutProps) {
             >
               Catalog
             </Link>
-            <Link 
-              to="/admin/orders" 
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              Admin
-            </Link>
+            {showAdminLink && (
+              <Link 
+                to="/admin/orders" 
+                className="text-sm font-medium transition-colors hover:text-primary"
+              >
+                Admin
+              </Link>
+            )}
           </nav>
 
           <Button 
@@ -106,11 +114,13 @@ export function SiteLayout({ children }: SiteLayoutProps) {
                     Browse Catalog
                   </Link>
                 </li>
-                <li>
-                  <Link to="/admin/orders" className="text-muted-foreground hover:text-primary transition-colors">
-                    Admin Panel
-                  </Link>
-                </li>
+                {showAdminLink && (
+                  <li>
+                    <Link to="/admin/orders" className="text-muted-foreground hover:text-primary transition-colors">
+                      Admin Panel
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
           </div>

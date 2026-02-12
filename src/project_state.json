@@ -1,11 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
+  "projectStateVersion": 7,
   "summary": "Build a professional website to sell Binance Gift Cards (USDT values $500–$50,000) and accept payments in Bitcoin.",
-  "architectural_notes": [],
-  "known_issues": [],
+  "architectural_notes": [
+    "Introduce a configurable pricing multiplier/discount (e.g., 0.5) used when calculating the BTC amount shown in payment instructions.",
+    "Add owner-only access control for the admin panel (authentication + authorization)."
+  ],
+  "known_issues": [
+    "Checkout flow bug: clicking 'Create order' / 'Get payment instructions' does not display Bitcoin payment instructions (e.g., BTC address/payment details) to the user."
+  ],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Minimalist geometric crypto storefront logo (logo-giftcards.dim_512x512.png)\n- Wide hero banner with abstract fintech shapes and warm dark theme (hero-giftcards.dim_1600x600.png)\n- Simple gift card product illustration, clean vector style (product-giftcard-illustration.dim_800x800.png)",
   "existing_features": [
     {
       "id": "feature-create-a-responsive-professional-marketing-storefront-experience-for-selling-binance-gift-cards-with-fixed-usdt-denominations-from-500-up-to-50-000",
@@ -54,6 +58,38 @@
         "REQ-7"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-fix-the-checkout-page-so-bitcoin-payment-instructions-reliably-display-immediately-after-a-successful-create-order-get-payment-instructions-submission-even-after-the-cart-session-is-cleared",
+      "title": "Fix the Checkout page so Bitcoin payment instructions reliably display immediately after a successful \"Create Order & Get Payment Instructions\" submission, even after the cart session is cleared.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-clear-error-feedback-when-order-creation-fails-including-when-the-backend-actor-is-not-initialized-ensuring-users-understand-why-payment-instructions-are-not-shown",
+      "title": "Add clear error feedback when order creation fails (including when the backend actor is not initialized), ensuring users understand why payment instructions are not shown.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-global-50-pricing-rule-so-that-the-amount-shown-in-bitcoin-payment-instructions-reflects-half-of-the-selected-gift-card-usdt-total-e-g-a-500-card-charges-250-worth-of-btc-consistently-across-checkout-success-view-and-the-order-status-page-for-pending-payment-orders",
+      "title": "Apply a global 50% pricing rule so that the amount shown in Bitcoin payment instructions reflects half of the selected gift card USDT total (e.g., a $500 card charges $250 worth of BTC), consistently across Checkout success view and the Order Status page for pending-payment orders.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-restrict-admin-panel-access-so-only-the-site-owner-can-access-admin-routes-and-admin-backend-operations-listing-all-orders-and-updating-order-status-use-internet-identity-for-owner-authentication-authorization-and-show-an-english-access-denied-experience-to-non-owners",
+      "title": "Restrict Admin Panel access so only the site owner can access admin routes and admin backend operations (listing all orders and updating order status). Use Internet Identity for owner authentication/authorization and show an English “Access denied” experience to non-owners.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -69,6 +105,18 @@
       "reqIds": [
         "REQ-4"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Apply a 50% pricing rule so Bitcoin payment instructions show half of the selected gift card’s USDT value (e.g., $500 card charges $250 equivalent in BTC) for all denominations.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Restrict Admin Panel access to owner-only (add authentication/authorization so only the site owner can access admin features).",
+      "reqIds": [],
       "status": "pending"
     }
   ],

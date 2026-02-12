@@ -1,79 +1,63 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T08:40:26.267Z",
-  "summary": "Frontend adds a multi-page storefront (home, catalog, checkout, order status, admin) with session-persisted cart selection and manual status updates via backend. Backend adds basic order CRUD/status methods in a single Motoko actor, but order data model lacks required commerce fields (denomination/quantity/total/timestamps). Admin UI and backend do not surface required total USDT and created time, and frontend includes an unrequested USDT→BTC conversion estimate and Internet Identity integration scaffolding.",
+  "generatedAt": "2026-02-12T12:31:03.009Z",
+  "summary": "REQ-10 is partially implemented on the frontend (50% discount applied in Checkout and Order Status derives a discounted USDT estimate), but the backend does not persist a discounted-USDT field (or other explicit equivalent) in the Order record. REQ-11 adds frontend route guarding and backend authorization checks, but the diff introduces a secret-token-based admin initialization path that is not requested and conflicts with the “Internet Identity only” owner-auth requirement; it’s also unclear from the diff how the owner/admin principal is configured purely via Internet Identity.",
   "missing_requirements": [
     {
-      "id": "REQ-4",
-      "requirement": "Each order stores: denomination (USDT), quantity, total (USDT), buyer contact, status, and timestamps; default status Pending Payment.",
-      "reason": "Backend Order type only includes id, buyerContact, btcPaymentAddress, amountInBitcoin, status; there are no denomination/quantity/total fields and no timestamps. createOrder also does not accept these fields.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "requirement": "Backend exposes methods to create an order, fetch an order by ID, and list orders (for basic administration).",
-      "reason": "Methods exist, but the stored Order shape is missing required fields (denomination/quantity/total/timestamps), so the exposed API does not meet the required data contract for admin and buyer views.",
+      "id": "REQ-10",
+      "requirement": "Backend order data includes a field for the discounted USDT amount (or equivalent) so the Order Status page can display it without relying on cart/session state.",
+      "reason": "The backend Order type only contains id, buyerContact, btcPaymentAddress, amountInBitcoin, and status. No discounted USDT amount (or explicit equivalent field) is stored. The Order Status page instead derives USDT from BTC using a hard-coded rate, not from persisted order data.",
       "evidence": [
         "backend/main.mo",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/pages/OrderStatusPage.tsx"
       ]
     },
     {
-      "id": "REQ-5",
-      "requirement": "Admin screen lists recent orders with key fields (order ID, total USDT, status, created time).",
-      "reason": "Admin list table shows Order ID, Contact, BTC Amount, Status, Actions; it does not show total USDT or created time.",
+      "id": "REQ-11",
+      "requirement": "Restrict Admin Panel access so only the site owner can access admin routes and admin backend operations using Internet Identity for owner authentication/authorization (owner-only, no extra auth mechanisms).",
+      "reason": "Backend enforcement uses AccessControl.isAdmin but the diff does not show any owner principal being configured via Internet Identity. Instead, the frontend calls an initialization method with a secret token (caffeineAdminToken) to set up access control, which is not part of the requirement and suggests admin access may depend on a token rather than owner identity alone.",
       "evidence": [
-        "frontend/src/pages/admin/AdminOrdersPage.tsx"
+        "frontend/src/hooks/useActor.ts",
+        "backend/main.mo",
+        "frontend/src/utils/urlParams.ts"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Automatic/derived USDT→BTC amount calculation shown during checkout (btcAmount computed from USDT total using a fixed rate).",
-      "reason": "BuildRequest explicitly lists \"Automatic Bitcoin exchange-rate conversion between USDT and BTC\" as a non-goal; diff implements a conversion estimate `(cartSession.total / 45000).toFixed(8)`.",
+      "description": "Secret URL/session parameter admin token mechanism (e.g., caffeineAdminToken) used to initialize backend access control.",
+      "reason": "The BuildRequest explicitly requires using Internet Identity only for owner authentication/authorization and does not request any secret-token-based admin bootstrap. The diff adds URL parameter parsing + session persistence utilities and uses a token in useActor to call _initializeAccessControlWithSecret.",
       "evidence": [
-        "frontend/src/pages/CheckoutPage.tsx"
+        "frontend/src/hooks/useActor.ts",
+        "frontend/src/utils/urlParams.ts"
       ]
     },
     {
-      "description": "Internet Identity authentication integration scaffolding (provider + actor creation dependent on identity).",
-      "reason": "Authentication was not requested (admin explicitly requires no external auth). Adding Internet Identity login/provider and identity-aware actor creation goes beyond requested scope.",
+      "description": "Backend authorization mixin/access-control framework added (MixinAuthorization, AccessControl.initState, _initializeAccessControlWithSecret, isCallerAdmin usage).",
+      "reason": "The request only asks for owner-only enforcement; it does not request introducing a generalized access-control subsystem/mixin with secret initialization flows.",
       "evidence": [
-        "frontend/src/main.tsx",
-        "frontend/src/hooks/useInternetIdentity.ts",
+        "backend/main.mo",
+        "frontend/src/hooks/useQueries.ts",
         "frontend/src/hooks/useActor.ts"
       ]
     }
   ],
   "confidence": 0.74,
   "changed_files": [
-    "all_files_summary.json",
     "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.css",
-    "frontend/index.html",
     "frontend/src/App.tsx",
+    "frontend/src/components/auth/AdminRouteGuard.tsx",
     "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx",
     "frontend/src/components/layout/SiteLayout.tsx",
-    "frontend/src/components/storefront/DenominationRangeCallout.tsx",
-    "frontend/src/components/storefront/DenominationSelector.tsx",
-    "frontend/src/components/storefront/QuantitySelector.tsx",
     "frontend/src/hooks/useActor.ts",
-    "frontend/src/hooks/useInternetIdentity.ts",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/index.css",
-    "frontend/src/main.tsx",
-    "frontend/src/pages/CatalogPage.tsx",
     "frontend/src/pages/CheckoutPage.tsx",
-    "frontend/src/pages/HomePage.tsx",
     "frontend/src/pages/OrderStatusPage.tsx",
     "frontend/src/pages/admin/AdminOrderDetailPage.tsx",
     "frontend/src/pages/admin/AdminOrdersPage.tsx",
-    "frontend/src/state/cartSession.ts",
-    "frontend/tailwind.config.js",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json"
   ]
 }

@@ -1,18 +1,19 @@
 {
-  "frontend/src/App.tsx": "Main application component with TanStack Router setup, defining all routes (home, catalog, checkout, order status, admin) and wiring them to the SiteLayout wrapper.",
-  "frontend/src/components/layout/SiteLayout.tsx": "Reusable site layout component with header navigation (logo, menu links, CTA button), main content area, and footer with branding and caffeine.ai attribution.",
+  "frontend/src/App.tsx": "Main application component with TanStack Router setup, defining all routes and wrapping admin routes (/admin/orders and /admin/orders/:orderId) with AdminRouteGuard for owner-only access control.",
+  "frontend/src/components/layout/SiteLayout.tsx": "Reusable site layout component with header navigation that conditionally shows Admin link only for authenticated admin users, main content area, and footer with branding and caffeine.ai attribution.",
   "frontend/src/pages/HomePage.tsx": "Marketing homepage featuring hero section with generated images, denomination range callout, feature cards highlighting Bitcoin payments and security, and a three-step \"How It Works\" section.",
   "frontend/src/pages/CatalogPage.tsx": "Product catalog page with gift card illustration, denomination selector ($500-$50,000 USDT), quantity selector, computed total display, and checkout navigation.",
-  "frontend/src/pages/CheckoutPage.tsx": "Checkout flow collecting buyer name, email, and optional notes; creates backend order and displays Bitcoin payment instructions with order reference.",
-  "frontend/src/pages/OrderStatusPage.tsx": "Buyer-facing order status page fetching order by ID, displaying current status badge, payment details, and contextual alerts based on order state.",
-  "frontend/src/pages/admin/AdminOrdersPage.tsx": "Admin dashboard listing all orders in a table with order ID, contact, BTC amount, status badges, and view action buttons.",
-  "frontend/src/pages/admin/AdminOrderDetailPage.tsx": "Admin order detail view showing complete order information with a status update dropdown and save functionality.",
+  "frontend/src/pages/CheckoutPage.tsx": "Checkout flow that captures order details, creates backend order with 50% discounted BTC amount calculation (cartSession.total * 0.5), and displays Bitcoin payment instructions with the discounted USDT amount in a stable snapshot.",
+  "frontend/src/pages/OrderStatusPage.tsx": "Buyer-facing order status page that fetches order by ID, displays current status badge, payment details, and shows BitcoinPaymentInstructions with estimated USDT amount derived from BTC amount for pending payment orders.",
+  "frontend/src/pages/admin/AdminOrdersPage.tsx": "Admin dashboard listing all orders with error handling for authorization failures, displaying orders in a table with order ID, contact, BTC amount, status badges, and view action buttons.",
+  "frontend/src/pages/admin/AdminOrderDetailPage.tsx": "Admin order detail view showing complete order information with status update functionality and graceful error handling for authorization failures with English user-friendly messages.",
   "frontend/src/components/storefront/DenominationRangeCallout.tsx": "Reusable callout card component highlighting the $500-$50,000 USDT denomination range with visual badges and icons.",
   "frontend/src/components/storefront/DenominationSelector.tsx": "Dropdown selector component for choosing gift card denomination from predefined USDT amounts ($500-$50,000).",
   "frontend/src/components/storefront/QuantitySelector.tsx": "Quantity input component with increment/decrement buttons and validation for selecting number of gift cards (1-100).",
-  "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx": "Payment instructions card displaying Bitcoin address, amount, order ID with copy-to-clipboard buttons and step-by-step payment guide.",
+  "frontend/src/components/checkout/BitcoinPaymentInstructions.tsx": "Payment instructions card displaying Bitcoin address, amount, order ID with copy-to-clipboard buttons, step-by-step payment guide, and showing the discounted USDT approximation when available.",
   "frontend/src/state/cartSession.ts": "Session storage utility functions for persisting cart selections (denomination, quantity, total) across navigation during checkout flow.",
-  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including getOrder, getAllOrders, createOrder, and updateOrderStatus with proper cache invalidation.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including getOrder, getAllOrders, createOrder, updateOrderStatus, and useIsCallerAdmin for checking admin authorization with proper cache invalidation.",
   "frontend/src/index.css": "Global styles with warm amber/orange OKLCH color system for both light and dark modes, avoiding blue/purple tones for a distinctive crypto storefront aesthetic.",
-  "frontend/tailwind.config.js": "Tailwind configuration with custom font families (Inter, JetBrains Mono), extended color tokens mapped to CSS variables, and consistent spacing/radius settings."
+  "frontend/tailwind.config.js": "Tailwind configuration with custom font families (Inter, JetBrains Mono), extended color tokens mapped to CSS variables, and consistent spacing/radius settings.",
+  "frontend/src/components/auth/AdminRouteGuard.tsx": "Admin-only route guard component that uses Internet Identity to require login and checks backend admin role, rendering English \"Login required\" or \"Access denied\" states when blocked."
 }
