@@ -17,7 +17,7 @@ export function DenominationCardGrid({ selectedDenomination, onSelect }: Denomin
   return (
     <div className="space-y-4">
       {/* Rate indicator */}
-      <div className="flex items-center justify-between text-sm bg-binance-dark border border-binance-dark-border rounded-lg px-4 py-3">
+      <div className="flex items-center justify-between text-sm bg-binance-dark border border-binance-dark-border rounded-lg px-4 py-2.5">
         <div className="flex items-center gap-2 text-binance-yellow">
           <TrendingUp className="h-4 w-4" />
           <span>
@@ -36,19 +36,19 @@ export function DenominationCardGrid({ selectedDenomination, onSelect }: Denomin
           </span>
         </div>
         {source === 'Cached' && (
-          <Badge variant="outline" className="text-xs border-binance-yellow/50 text-binance-yellow">
+          <Badge variant="outline" className="text-xs border-binance-yellow/50 text-binance-yellow py-0 h-5">
             Using cached rate
           </Badge>
         )}
         {source === 'Fallback' && (
-          <Badge variant="outline" className="text-xs border-yellow-500/50 text-yellow-500">
+          <Badge variant="outline" className="text-xs border-yellow-500/50 text-yellow-500 py-0 h-5">
             Rate unavailable - using fallback
           </Badge>
         )}
       </div>
 
-      {/* Cards grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {/* Cards grid - more compact */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {SUPPORTED_DENOMINATIONS.map((denomination) => {
           const isSelected = selectedDenomination === denomination;
           const discountedUsdt = calculateDiscountedAmount(denomination);
@@ -65,39 +65,39 @@ export function DenominationCardGrid({ selectedDenomination, onSelect }: Denomin
               }`}
               onClick={() => onSelect(denomination)}
             >
-              <CardHeader className="pb-3 space-y-2">
-                <div className="flex items-center gap-2 text-binance-yellow/80">
-                  <SiBinance className="h-4 w-4" />
-                  <span className="text-xs font-medium uppercase tracking-wide">
+              <CardHeader className="pb-2 space-y-1.5 px-4 pt-4">
+                <div className="flex items-center gap-1.5 text-binance-yellow/80">
+                  <SiBinance className="h-3.5 w-3.5" />
+                  <span className="text-[10px] font-medium uppercase tracking-wide">
                     Binance Gift Card
                   </span>
                 </div>
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-2xl font-bold text-white">
+                  <CardTitle className="text-xl font-bold text-white">
                     {formatUsdt(denomination)}
                   </CardTitle>
                   {isSelected && (
-                    <Badge className="bg-binance-yellow text-binance-dark hover:bg-binance-yellow-dark">
-                      <Check className="h-3 w-3 mr-1" />
+                    <Badge className="bg-binance-yellow text-binance-dark hover:bg-binance-yellow-dark text-xs py-0 h-5">
+                      <Check className="h-3 w-3 mr-0.5" />
                       Selected
                     </Badge>
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="rounded-lg bg-binance-dark-lighter border-2 border-binance-yellow/30 p-3 space-y-1">
-                  <p className="text-xs font-medium text-binance-yellow/70 uppercase tracking-wide">
+              <CardContent className="space-y-2 px-4 pb-4">
+                <div className="rounded-lg bg-binance-dark-lighter border-2 border-binance-yellow/30 p-2.5 space-y-1">
+                  <p className="text-[10px] font-medium text-binance-yellow/70 uppercase tracking-wide">
                     Pay Only (50% Off):
                   </p>
-                  <p className="text-xl font-bold text-binance-yellow">
+                  <p className="text-lg font-bold text-binance-yellow">
                     ${discountedUsdt.toLocaleString()} USDT
                   </p>
-                  <div className="flex items-center gap-1 text-sm font-mono text-white/80 pt-1 border-t border-binance-yellow/20">
-                    <span className="text-xs">≈</span>
+                  <div className="flex items-center gap-1 text-xs font-mono text-white/80 pt-1 border-t border-binance-yellow/20">
+                    <span className="text-[10px]">≈</span>
                     {isLoading && !isFetched ? (
-                      <span className="text-xs text-white/50">Loading BTC amount...</span>
+                      <span className="text-[10px] text-white/50">Loading BTC...</span>
                     ) : (
-                      <span>{btcAmount} BTC</span>
+                      <span className="text-xs">{btcAmount} BTC</span>
                     )}
                   </div>
                 </div>

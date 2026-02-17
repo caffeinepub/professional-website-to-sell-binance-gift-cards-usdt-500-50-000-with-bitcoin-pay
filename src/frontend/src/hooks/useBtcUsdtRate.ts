@@ -71,13 +71,15 @@ async function fetchBtcRate(): Promise<BtcRateData> {
 
 /**
  * Hook to fetch and auto-refresh BTC/USDT rate
- * Refreshes every 60 seconds
+ * Refreshes every 60 seconds and on window focus
  */
 export function useBtcUsdtRate() {
   const query = useQuery<BtcRateData>({
     queryKey: ['btcUsdtRate'],
     queryFn: fetchBtcRate,
     refetchInterval: 60000, // Refresh every 60 seconds
+    refetchOnWindowFocus: true, // Refresh when user returns to tab
+    refetchOnReconnect: true, // Refresh when network reconnects
     staleTime: 30000, // Consider data stale after 30 seconds
     retry: 2,
     retryDelay: 5000,

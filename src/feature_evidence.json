@@ -2,13 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-identify-and-fix-the-root-cause-of-the-production-runtime-error-that-causes-the-app-to-render-only-the-global-something-went-wrong-fallback-on-initial-page-load-including-on-the-root-route-the-fix-must-ensure-the-production-build-loads-successfully-without-triggering-the-tanstack-router-errorcomponent",
-      "featureTitle": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (including on the root route `/`). The fix must ensure the production build loads successfully without triggering the TanStack Router errorComponent.",
+      "featureId": "feature-add-a-binance-style-top-running-ticker-banner-that-is-visible-across-the-site-all-routes-and-continuously-scrolls-a-promotional-message-about-a-limited-time-50-discount",
+      "featureTitle": "Add a Binance-style top running ticker banner that is visible across the site (all routes) and continuously scrolls a promotional message about a limited-time 50% discount.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/error/GlobalErrorBoundary.tsx",
-        "frontend/src/hooks/useOrderHistory.ts",
-        "frontend/src/state/orderHistory.ts"
+        "frontend/src/components/layout/PromoTicker.tsx",
+        "frontend/src/components/layout/SiteLayout.tsx",
+        "frontend/src/index.css"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -24,11 +23,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-harden-the-global-error-fallback-implementation-so-it-cannot-itself-cause-crashes-in-production-builds-ensure-all-environment-checks-are-browser-safe-use-import-meta-env-only-and-guard-all-error-detail-rendering-so-that-unknown-thrown-values-cannot-break-the-fallback-all-user-facing-text-in-the-fallback-must-remain-in-english",
-      "featureTitle": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds. Ensure all environment checks are browser-safe (use `import.meta.env` only), and guard all error-detail rendering so that unknown thrown values cannot break the fallback. All user-facing text in the fallback must remain in English.",
+      "featureId": "feature-update-the-ticker-message-copy-to-be-more-engaging-and-persuasive-english-only-while-clearly-communicating-flash-50-discount-on-all-orders-a-limited-time-nature-and-a-special-bonus-reason-for-the-offer",
+      "featureTitle": "Update the ticker message copy to be more engaging and persuasive (English only) while clearly communicating: “Flash 50% discount on all orders”, a limited-time nature, and a special/bonus reason for the offer.",
       "files": [
-        "frontend/src/pages/GlobalErrorFallbackPage.tsx",
-        "frontend/src/utils/errors.ts"
+        "frontend/src/components/layout/PromoTicker.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -44,12 +42,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-app-shell-sitelayout-and-initial-routing-can-render-even-when-backend-connectivity-actor-creation-or-initial-react-query-calls-fail-non-critical-layout-queries-e-g-ownership-admin-checks-and-recent-orders-dropdown-data-must-not-crash-the-entire-app-and-must-degrade-gracefully-hide-admin-link-disable-orders-menu-and-avoid-throwing",
-      "featureTitle": "Ensure the app shell (`SiteLayout`) and initial routing can render even when backend connectivity, actor creation, or initial React Query calls fail. Non-critical layout queries (e.g., ownership/admin checks and recent orders dropdown data) must not crash the entire app and must degrade gracefully (hide admin link, disable orders menu, and avoid throwing).",
+      "featureId": "feature-ensure-btc-usdt-pricing-is-real-time-and-auto-refreshes-and-that-all-btc-derived-amounts-displayed-in-the-ui-update-according-to-the-latest-fetched-rate-including-any-top-summary-rate-display-and-the-catalog-pricing-calculations",
+      "featureTitle": "Ensure BTC/USDT pricing is real-time and auto-refreshes, and that all BTC-derived amounts displayed in the UI update according to the latest fetched rate (including any top/summary rate display and the catalog pricing calculations).",
       "files": [
-        "frontend/src/components/error/SafeSection.tsx",
-        "frontend/src/components/layout/SiteLayout.tsx",
-        "frontend/src/components/orders/RecentOrdersMenu.tsx"
+        "frontend/src/components/storefront/DenominationCardGrid.tsx",
+        "frontend/src/hooks/useBtcUsdtRate.ts",
+        "frontend/src/pages/OrderStatusPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -61,6 +59,44 @@
       ],
       "testIds": [
         "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-make-gift-card-denomination-cards-smaller-and-more-binance-like-in-layout-and-density-avoiding-a-black-brown-theme-and-keeping-the-existing-binance-style-color-palette",
+      "featureTitle": "Make gift card denomination cards smaller and more Binance-like in layout and density, avoiding a black/brown theme and keeping the existing Binance-style color palette.",
+      "files": [
+        "frontend/src/components/storefront/DenominationCardGrid.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-the-built-with-using-caffeine-ai-branding-link-from-the-footer-ui",
+      "featureTitle": "Remove the “Built with ❤️ using caffeine.ai” branding/link from the footer UI.",
+      "files": [
+        "frontend/src/components/layout/SiteLayout.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
       ],
       "confidence": "high"
     }

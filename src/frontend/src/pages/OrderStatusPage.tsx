@@ -16,7 +16,7 @@ export default function OrderStatusPage() {
   const { orderId } = useParams({ strict: false }) as { orderId: string };
   const navigate = useNavigate();
   const { data: order, isLoading, isError } = useGetOrder(orderId);
-  const { rate, source } = useBtcUsdtRate();
+  const { effectiveRate, source } = useBtcUsdtRate();
 
   if (isLoading) {
     return (
@@ -50,7 +50,7 @@ export default function OrderStatusPage() {
   const badgeVariant = getStatusBadgeVariant(order.status);
 
   // Calculate estimated USDT amount from BTC amount using current live rate
-  const estimatedUsdtAmount = convertBtcToUsdtWithRate(order.amountInBitcoin, rate);
+  const estimatedUsdtAmount = convertBtcToUsdtWithRate(order.amountInBitcoin, effectiveRate);
 
   // Get icon for status badge
   const getStatusIcon = () => {
@@ -184,7 +184,7 @@ export default function OrderStatusPage() {
                 <Alert variant="destructive">
                   <XCircle className="h-4 w-4" />
                   <AlertDescription>
-                    This order has been cancelled. Please contact support if you have questions.
+                    This order has been cancelled. If you have any questions, please contact support.
                   </AlertDescription>
                 </Alert>
               </>
@@ -192,21 +192,20 @@ export default function OrderStatusPage() {
           </CardContent>
         </Card>
 
-        {order.status === OrderStatus.pendingPayment && (
-          <BitcoinPaymentInstructions 
-            orderId={order.id}
-            btcAddress={order.btcPaymentAddress}
-            btcAmount={order.amountInBitcoin}
-            usdtAmount={estimatedUsdtAmount}
-          />
-        )}
-
         <div className="flex gap-4">
           <Button 
-            variant="outline"
             onClick={() => navigate({ to: '/catalog' })}
+            variant="outline"
+            className="flex-1"
           >
             Browse More Cards
+          </Button>
+          <Button 
+            onClick={() => navigate({ to: '/track' })}
+            variant="outline"
+            className="flex-1"
+          >
+            Track Another Order
           </Button>
         </div>
       </div>

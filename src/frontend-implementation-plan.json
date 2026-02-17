@@ -1,83 +1,109 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Stabilize production initial load by preventing shell/storage/actor failures from crashing routing",
+  "title": "Binance-style promo ticker, real-time BTC pricing, and UI polish",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Fix the production-only runtime error that triggers TanStack Router global error fallback on initial load and add crash-safe diagnostics to pinpoint any remaining failing module.",
+      "summary": "Add a Binance-style top promo ticker visible across all routes with smooth marquee scrolling.",
       "acceptanceCriteria": [
-        "In production, loading `/` renders the Home page content within `SiteLayout` and does not show the GlobalErrorFallbackPage.",
-        "No uncaught exceptions occur during initial page load in the browser console (excluding expected network warnings).",
-        "If an error still occurs, the console output includes enough context (error + stack, where available) to pinpoint the failing module/component without causing additional crashes."
+        "A ticker/banner appears at the very top of the app on every page and scrolls horizontally (marquee-style).",
+        "Ticker visual style matches a Binance-like look (binance-yellow accent, dark background, high contrast, compact height).",
+        "Ticker continues animating smoothly and does not block page interaction or cause layout shift.",
+        "Ticker is responsive (works on mobile and desktop) and does not overlap the sticky header/navigation."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/state/orderHistory.ts",
-          "operation": "modify",
-          "description": "Harden localStorage-backed order history state so any storage access (read/parse/write/remove/subscribe) is wrapped in try/catch and falls back to an in-memory empty history when storage is unavailable/corrupted (prevents production initial-load crashes from storage exceptions)."
+          "path": "frontend/src/components/layout/PromoTicker.tsx",
+          "operation": "create",
+          "description": "Create a reusable PromoTicker layout component that renders a compact, high-contrast Binance-style marquee banner and does not capture pointer events (so it won't block page interaction)."
         },
         {
-          "path": "frontend/src/hooks/useOrderHistory.ts",
+          "path": "frontend/src/components/layout/SiteLayout.tsx",
           "operation": "modify",
-          "description": "Ensure the order history hook never throws during initial render: guard against storage failures, return stable defaults (empty list + safe booleans), and log a single, context-rich console error when recovery is triggered."
+          "description": "Wire PromoTicker into the global layout so it appears on every route, reserving vertical space to avoid layout shift and offsetting the sticky header so it does not overlap the ticker."
         },
         {
-          "path": "frontend/src/components/error/GlobalErrorBoundary.tsx",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Augment error logging to include normalized error message and stack when available (without assuming the thrown value is an Error), and ensure logging itself cannot throw; keep logs informative for production debugging."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Wrap the RouterProvider with GlobalErrorBoundary so any non-router render-time crash is caught and logged with context; use GlobalErrorFallbackPage as the fallback renderer (helps prevent opaque production blank/fallback states and surfaces actionable diagnostics)."
+          "description": "Add global CSS keyframes and utility classes for the ticker marquee animation (smooth continuous scroll) and compact styling aligned to the existing Binance theme variables."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Make the global error fallback UI production-safe and impossible to crash, using browser-safe env checks and fully-guarded error detail rendering (English-only UI).",
+      "summary": "Replace ticker copy with engaging English promo messaging communicating flash 50% off, urgency, and a special reason.",
       "acceptanceCriteria": [
-        "GlobalErrorFallbackPage renders without throwing even when `error` is `undefined`, a string, or a non-Error object.",
-        "No usage of `process.env.*` exists in runtime-executed frontend code paths for error fallback/handling.",
-        "All visible fallback UI strings are in English."
+        "Ticker text is in English and includes: (1) Flash sale/50% off wording, (2) limited-time urgency, and (3) a special-offer reason (e.g., bonus, anniversary, limited allocation) without sounding like placeholder text.",
+        "The full message is readable during scrolling (adequate spacing, no clipping)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/GlobalErrorFallbackPage.tsx",
+          "path": "frontend/src/components/layout/PromoTicker.tsx",
           "operation": "modify",
-          "description": "Fully harden fallback rendering: normalize unknown thrown values into safe strings, guard all property access and optional rendering, avoid any non-browser-safe globals, and keep `import.meta.env` as the only environment check; ensure all user-facing strings remain English."
-        },
-        {
-          "path": "frontend/src/utils/errors.ts",
-          "operation": "modify",
-          "description": "Add/adjust helper(s) to safely extract a debug-friendly string (and stack when present) from unknown thrown values without throwing, so GlobalErrorFallbackPage and GlobalErrorBoundary can display/log consistent context safely."
+          "description": "Update the ticker message string(s) to an engaging English-only line that clearly includes: flash 50% discount on all orders, limited-time urgency, and a specific special-offer reason; ensure spacing prevents clipping while scrolling."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Ensure SiteLayout and initial routing remain renderable even when actor creation, backend connectivity, or initial React Query calls fail by isolating non-critical UI and degrading gracefully.",
+      "summary": "Ensure BTC/USDT rate auto-refreshes and all BTC-derived UI amounts update from the latest fetched rate with graceful loading/fallback.",
       "acceptanceCriteria": [
-        "If the backend actor is not ready or backend calls fail, `SiteLayout` still renders header, footer, and the current route outlet.",
-        "Admin link is shown only when ownership is positively confirmed; otherwise it stays hidden without errors.",
-        "RecentOrdersMenu does not throw on load; when the actor is not ready it renders a disabled Orders button (or equivalent non-crashing UI)."
+        "The BTC/USDT rate used for UI conversions auto-refreshes without requiring a page reload.",
+        "When the rate changes, BTC amounts shown for the same USDT denomination update accordingly in the catalog UI.",
+        "Loading and fallback states for the rate do not break the page; the UI continues to render gracefully."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/error/SafeSection.tsx",
-          "operation": "create",
-          "description": "Create a small wrapper component that uses the existing GlobalErrorBoundary to isolate non-critical header UI sections (e.g., RecentOrdersMenu) and render a safe, non-throwing fallback UI when a child crashes."
+          "path": "frontend/src/hooks/useBtcUsdtRate.ts",
+          "operation": "modify",
+          "description": "Harden the auto-refresh behavior for the BTC/USDT query (keep periodic refresh; ensure the query continues refetching under typical user conditions such as window focus/reconnect) while preserving existing cached/fallback logic and safe UI state flags."
         },
         {
-          "path": "frontend/src/components/orders/RecentOrdersMenu.tsx",
+          "path": "frontend/src/components/storefront/DenominationCardGrid.tsx",
           "operation": "modify",
-          "description": "Make RecentOrdersMenu resilient to partial/failed dependencies: guard against unexpected undefined values, ensure mapping over history/details cannot throw, and avoid assuming query results are present; keep the existing disabled state when actor is not ready."
+          "description": "Ensure all BTC-derived amounts in the denomination grid are computed from the latest rate returned by useBtcUsdtRate (single source of truth) and that loading/fallback labels render without breaking layout."
         },
+        {
+          "path": "frontend/src/pages/CheckoutPage.tsx",
+          "operation": "modify",
+          "description": "Ensure any BTC conversion/summary text shown during checkout reads the latest rate from useBtcUsdtRate so displayed BTC estimates update automatically while keeping the page functional during rate loading/fallback."
+        },
+        {
+          "path": "frontend/src/pages/OrderStatusPage.tsx",
+          "operation": "modify",
+          "description": "Ensure BTC-derived estimate displays on the order status page continue to use the latest rate from useBtcUsdtRate and render safely when the rate is loading or falling back."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Make denomination cards more compact and Binance-like while keeping the existing dark + yellow palette (no black/brown theme).",
+      "acceptanceCriteria": [
+        "Denomination cards appear more compact (reduced padding/typography scale) while remaining readable and tappable on mobile.",
+        "The overall styling maintains a Binance-like dark + yellow aesthetic and does not introduce black/brown styling.",
+        "Selected/hover states remain clear and consistent with the Binance accent color."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/storefront/DenominationCardGrid.tsx",
+          "operation": "modify",
+          "description": "Adjust denomination card density (smaller typography, reduced padding, tighter grid gaps, compact badges) while preserving Binance dark surfaces and binance-yellow accents; keep selected/hover borders and glows clear and consistent."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Remove the caffeine.ai branding/link from the footer without removing other footer content.",
+      "acceptanceCriteria": [
+        "The footer no longer displays any “Built with … caffeine.ai” text or link.",
+        "No other footer content (copyright, links) is removed unintentionally."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/components/layout/SiteLayout.tsx",
           "operation": "modify",
-          "description": "Wrap RecentOrdersMenu with the new SafeSection so a failure in orders/history/query rendering cannot crash the entire app shell; keep admin link hidden unless ownership is positively confirmed; ensure header/footer/outlet always render even when non-critical queries fail."
+          "description": "Remove the “Built with ❤️ using caffeine.ai” line/link from the footer while keeping the rest of the footer structure and content unchanged."
         }
       ]
     }

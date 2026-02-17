@@ -1,40 +1,79 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Crypto gift-card style page with real-time BTC pricing, Binance-style UI, and promotional ticker.",
   "architectural_notes": [],
-  "known_issues": [
-    "After deploying Version 20 to production, the same site-opening error persists (regression: previously not occurring)."
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-identify-and-fix-the-root-cause-of-the-production-runtime-error-that-causes-the-app-to-render-only-the-global-something-went-wrong-fallback-on-initial-page-load-including-on-the-root-route-the-fix-must-ensure-the-production-build-loads-successfully-without-triggering-the-tanstack-router-errorcomponent",
-      "title": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (including on the root route `/`). The fix must ensure the production build loads successfully without triggering the TanStack Router errorComponent.",
+      "id": "feature-add-a-binance-style-top-running-ticker-banner-that-is-visible-across-the-site-all-routes-and-continuously-scrolls-a-promotional-message-about-a-limited-time-50-discount",
+      "title": "Add a Binance-style top running ticker banner that is visible across the site (all routes) and continuously scrolls a promotional message about a limited-time 50% discount.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-harden-the-global-error-fallback-implementation-so-it-cannot-itself-cause-crashes-in-production-builds-ensure-all-environment-checks-are-browser-safe-use-import-meta-env-only-and-guard-all-error-detail-rendering-so-that-unknown-thrown-values-cannot-break-the-fallback-all-user-facing-text-in-the-fallback-must-remain-in-english",
-      "title": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds. Ensure all environment checks are browser-safe (use `import.meta.env` only), and guard all error-detail rendering so that unknown thrown values cannot break the fallback. All user-facing text in the fallback must remain in English.",
+      "id": "feature-update-the-ticker-message-copy-to-be-more-engaging-and-persuasive-english-only-while-clearly-communicating-flash-50-discount-on-all-orders-a-limited-time-nature-and-a-special-bonus-reason-for-the-offer",
+      "title": "Update the ticker message copy to be more engaging and persuasive (English only) while clearly communicating: “Flash 50% discount on all orders”, a limited-time nature, and a special/bonus reason for the offer.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-app-shell-sitelayout-and-initial-routing-can-render-even-when-backend-connectivity-actor-creation-or-initial-react-query-calls-fail-non-critical-layout-queries-e-g-ownership-admin-checks-and-recent-orders-dropdown-data-must-not-crash-the-entire-app-and-must-degrade-gracefully-hide-admin-link-disable-orders-menu-and-avoid-throwing",
-      "title": "Ensure the app shell (`SiteLayout`) and initial routing can render even when backend connectivity, actor creation, or initial React Query calls fail. Non-critical layout queries (e.g., ownership/admin checks and recent orders dropdown data) must not crash the entire app and must degrade gracefully (hide admin link, disable orders menu, and avoid throwing).",
+      "id": "feature-ensure-btc-usdt-pricing-is-real-time-and-auto-refreshes-and-that-all-btc-derived-amounts-displayed-in-the-ui-update-according-to-the-latest-fetched-rate-including-any-top-summary-rate-display-and-the-catalog-pricing-calculations",
+      "title": "Ensure BTC/USDT pricing is real-time and auto-refreshes, and that all BTC-derived amounts displayed in the UI update according to the latest fetched rate (including any top/summary rate display and the catalog pricing calculations).",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-make-gift-card-denomination-cards-smaller-and-more-binance-like-in-layout-and-density-avoiding-a-black-brown-theme-and-keeping-the-existing-binance-style-color-palette",
+      "title": "Make gift card denomination cards smaller and more Binance-like in layout and density, avoiding a black/brown theme and keeping the existing Binance-style color palette.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-built-with-using-caffeine-ai-branding-link-from-the-footer-ui",
+      "title": "Remove the “Built with ❤️ using caffeine.ai” branding/link from the footer UI.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Fix persistent production load crash showing global error fallback",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Implement real-time BTC price auto-refresh and update displayed BTC-derived pricing accordingly (top price + below pricing).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Adjust gift card UI: make cards smaller and update styling to a Binance-like theme (avoid black/brown look).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Remove the “Built with Caffeine AI” branding/footer from the app UI.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add a top running ticker banner in Binance style with an engaging/persuasive limited-time “Flash 50% discount on all orders” message.",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Binance Gift Cards",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

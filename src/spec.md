@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the production-only runtime crash that forces the app to show the global “Something went wrong” fallback on initial load, and make the app shell resilient to backend/actor/query failures.
+**Goal:** Improve the Binance Gift Cards UI with a site-wide Binance-style promo ticker, real-time BTC/USDT pricing updates, more compact denomination cards, and cleaned-up footer branding.
 
 **Planned changes:**
-- Identify and fix the root cause of the production runtime error so `/` renders normally without triggering the TanStack Router `errorComponent`.
-- Harden `GlobalErrorFallbackPage` so it never throws in production (browser-safe env checks using `import.meta.env` only, and safe rendering for unknown/undefined thrown values), keeping all fallback text in English.
-- Update `SiteLayout` and non-critical initial queries (e.g., ownership/admin checks, recent orders dropdown) to fail gracefully when actor/backend/React Query calls fail (hide admin link unless confirmed, disable Orders menu, avoid throwing) while still rendering the layout and current route outlet.
+- Add a top-of-page, all-routes running ticker banner (Binance-like dark background with yellow accent) that scrolls smoothly and does not interfere with header/navigation or page interaction.
+- Update the ticker copy (English) to be more engaging while clearly stating a flash 50% discount, limited-time urgency, and a credible special-offer reason.
+- Make BTC/USDT rate fetching auto-refresh and ensure all BTC-derived UI amounts (including any summary/top rate display and catalog conversions) update when the rate changes, with graceful loading/fallback states.
+- Adjust gift card denomination cards to be more compact and Binance-like in density/layout while keeping the existing Binance-style palette and avoiding black/brown styling.
+- Remove the “Built with ❤️ using caffeine.ai” text/link from the footer without removing other footer content.
 
-**User-visible outcome:** In production, visiting `/` loads the Home page within `SiteLayout` without a global error screen; if backend connectivity or initial calls fail, the app still renders and non-critical UI elements degrade gracefully instead of crashing.
+**User-visible outcome:** Users see a Binance-style promo ticker across the entire site, live-updating BTC-based pricing throughout the UI, a more compact Binance-like gift card catalog layout, and a footer without caffeine.ai branding.

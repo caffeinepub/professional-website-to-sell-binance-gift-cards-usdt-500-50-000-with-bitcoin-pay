@@ -83,16 +83,66 @@
         /* Binance theme colors for dark mode */
         --binance-yellow: 0.82 0.18 85;
         --binance-yellow-dark: 0.70 0.16 80;
-        --binance-dark: 0.15 0.01 60;
-        --binance-dark-lighter: 0.20 0.01 60;
-        --binance-dark-border: 0.30 0.02 70;
+        --binance-dark: 0.18 0.01 60;
+        --binance-dark-lighter: 0.24 0.01 60;
+        --binance-dark-border: 0.35 0.02 70;
     }
+}
 
+@layer base {
     * {
         @apply border-border;
     }
-
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+/* Ticker animation styles */
+@layer components {
+    .ticker-container {
+        height: 40px;
+        position: relative;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    .ticker-wrapper {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+    }
+
+    .ticker-content {
+        display: flex;
+        animation: ticker-scroll 30s linear infinite;
+        white-space: nowrap;
+    }
+
+    .ticker-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 0 4rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: oklch(var(--binance-yellow));
+        letter-spacing: 0.025em;
+    }
+
+    @keyframes ticker-scroll {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-33.333%);
+        }
+    }
+
+    /* Pause animation on hover for better readability */
+    .ticker-container:hover .ticker-content {
+        animation-play-state: paused;
     }
 }

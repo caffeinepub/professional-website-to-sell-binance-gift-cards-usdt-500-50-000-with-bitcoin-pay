@@ -1,72 +1,109 @@
 {
   "kind": "build_request",
-  "title": "Fix persistent production load crash showing global error fallback",
+  "title": "Binance-style promo ticker, real-time BTC pricing, and UI polish",
+  "projectName": "Binance Gift Cards",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Identify and fix the root cause of the production runtime error that causes the app to render only the global “Something went wrong” fallback on initial page load (including on the root route `/`). The fix must ensure the production build loads successfully without triggering the TanStack Router errorComponent.",
+      "text": "Add a Binance-style top running ticker banner that is visible across the site (all routes) and continuously scrolls a promotional message about a limited-time 50% discount.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "recent-messages"
         ],
         "quotes": [
-          "Still same error arha yr pta ni q.. phly to ni arha tha"
+          "1 upr Ticker run krta rhy jis mai Flash 50% discount on all orders k bary mai btaya ho k ye offer kisi special waja se mil rhi sirf limited time k liye etc etc…",
+          "Ticker binance style or han ticker text thora engaging or bhi kuch attractive persuading line add kr"
         ]
       },
       "acceptanceCriteria": [
-        "In production, loading `/` renders the Home page content within `SiteLayout` and does not show the GlobalErrorFallbackPage.",
-        "No uncaught exceptions occur during initial page load in the browser console (excluding expected network warnings).",
-        "If an error still occurs, the console output includes enough context (error + stack, where available) to pinpoint the failing module/component without causing additional crashes."
+        "A ticker/banner appears at the very top of the app on every page and scrolls horizontally (marquee-style).",
+        "Ticker visual style matches a Binance-like look (binance-yellow accent, dark background, high contrast, compact height).",
+        "Ticker continues animating smoothly and does not block page interaction or cause layout shift.",
+        "Ticker is responsive (works on mobile and desktop) and does not overlap the sticky header/navigation."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Harden the global error fallback implementation so it cannot itself cause crashes in production builds. Ensure all environment checks are browser-safe (use `import.meta.env` only), and guard all error-detail rendering so that unknown thrown values cannot break the fallback. All user-facing text in the fallback must remain in English.",
+      "text": "Update the ticker message copy to be more engaging and persuasive (English only) while clearly communicating: “Flash 50% discount on all orders”, a limited-time nature, and a special/bonus reason for the offer.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "recent-messages"
         ],
         "quotes": [
-          "Still same error arha yr pta ni q.. phly to ni arha tha"
+          "Ticker binance style or han ticker text thora engaging or bhi kuch attractive persuading line add kr"
         ]
       },
       "acceptanceCriteria": [
-        "GlobalErrorFallbackPage renders without throwing even when `error` is `undefined`, a string, or a non-Error object.",
-        "No usage of `process.env.*` exists in runtime-executed frontend code paths for error fallback/handling.",
-        "All visible fallback UI strings are in English."
+        "Ticker text is in English and includes: (1) Flash sale/50% off wording, (2) limited-time urgency, and (3) a special-offer reason (e.g., bonus, anniversary, limited allocation) without sounding like placeholder text.",
+        "The full message is readable during scrolling (adequate spacing, no clipping)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Ensure the app shell (`SiteLayout`) and initial routing can render even when backend connectivity, actor creation, or initial React Query calls fail. Non-critical layout queries (e.g., ownership/admin checks and recent orders dropdown data) must not crash the entire app and must degrade gracefully (hide admin link, disable orders menu, and avoid throwing).",
+      "text": "Ensure BTC/USDT pricing is real-time and auto-refreshes, and that all BTC-derived amounts displayed in the UI update according to the latest fetched rate (including any top/summary rate display and the catalog pricing calculations).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "recent-messages"
         ],
         "quotes": [
-          "Still same error arha yr pta ni q.. phly to ni arha tha"
+          "Bitcoin ki Live price mention ki hui wo to kafi time sy Stable ha ... wo Real time update hoti jae usi hisab sy neechy price mai bhi BTC update hota jae tmny to usko static rkha hua"
         ]
       },
       "acceptanceCriteria": [
-        "If the backend actor is not ready or backend calls fail, `SiteLayout` still renders header, footer, and the current route outlet.",
-        "Admin link is shown only when ownership is positively confirmed; otherwise it stays hidden without errors.",
-        "RecentOrdersMenu does not throw on load; when the actor is not ready it renders a disabled Orders button (or equivalent non-crashing UI)."
+        "The BTC/USDT rate used for UI conversions auto-refreshes without requiring a page reload.",
+        "When the rate changes, BTC amounts shown for the same USDT denomination update accordingly in the catalog UI.",
+        "Loading and fallback states for the rate do not break the page; the UI continues to render gracefully."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Make gift card denomination cards smaller and more Binance-like in layout and density, avoiding a black/brown theme and keeping the existing Binance-style color palette.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "gift cards thory small kr ... black brown theme na dy lakin binance ki trh lgy k bianane gift cards hain"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Denomination cards appear more compact (reduced padding/typography scale) while remaining readable and tappable on mobile.",
+        "The overall styling maintains a Binance-like dark + yellow aesthetic and does not introduce black/brown styling.",
+        "Selected/hover states remain clear and consistent with the Binance accent color."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Remove the “Built with ❤️ using caffeine.ai” branding/link from the footer UI.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "Or secondly built with caffeine ai ye bhi remove krdy.."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The footer no longer displays any “Built with … caffeine.ai” text or link.",
+        "No other footer content (copyright, links) is removed unintentionally."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, or any files in `frontend/src/components/ui` (compose them instead).",
-    "Respect single-actor backend architecture; keep Motoko logic in `backend/main.mo` and only add `backend/migration.mo` changes if state migration is required.",
-    "Use English for any user-facing text."
+    "Do not edit any files under frontend/src/components/ui (compose them instead).",
+    "Do not modify files listed as immutable in SYSTEM_CONTEXT (e.g., useActor/useInternetIdentity/main.tsx).",
+    "Keep all user-facing text in English."
   ],
   "nonGoals": [
-    "Adding new product features unrelated to fixing the production load error.",
-    "Introducing new backend services, external databases, or third-party auth providers (Internet Identity only).",
-    "UI redesign beyond what is necessary to prevent crashes and improve graceful degradation during backend/actor failures."
+    "No backend/Motoko changes are required for the ticker, footer text removal, or UI styling changes.",
+    "Do not add third-party auth providers or external databases.",
+    "Do not add real-time transport features (e.g., WebSockets)."
   ],
   "imageRequirements": {
     "required": [],

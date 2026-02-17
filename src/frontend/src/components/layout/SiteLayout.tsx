@@ -7,6 +7,7 @@ import { useIsOwner } from '@/hooks/useQueries';
 import { useActor } from '@/hooks/useActor';
 import { RecentOrdersMenu } from '@/components/orders/RecentOrdersMenu';
 import { SafeSection } from '@/components/error/SafeSection';
+import { PromoTicker } from '@/components/layout/PromoTicker';
 
 interface SiteLayoutProps {
   children: React.ReactNode;
@@ -18,7 +19,6 @@ export function SiteLayout({ children }: SiteLayoutProps) {
   const { actor, isFetching } = useActor();
   const { data: isOwner, isError: isOwnerError } = useIsOwner();
   const currentYear = new Date().getFullYear();
-  const appIdentifier = typeof window !== 'undefined' ? window.location.hostname : 'binance-giftcards';
 
   // Only show admin link if we can definitively confirm ownership
   // Hide on error or when actor is not ready
@@ -27,6 +27,9 @@ export function SiteLayout({ children }: SiteLayoutProps) {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Promo Ticker at the very top */}
+      <PromoTicker />
+      
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
@@ -183,17 +186,6 @@ export function SiteLayout({ children }: SiteLayoutProps) {
 
           <div className="mt-8 border-t border-border/40 pt-8 text-center text-sm text-muted-foreground">
             <p>© {currentYear} Binance Gift Cards. All rights reserved.</p>
-            <p className="mt-2">
-              Built with ❤️ using{' '}
-              <a 
-                href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(appIdentifier)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                caffeine.ai
-              </a>
-            </p>
           </div>
         </div>
       </footer>
