@@ -1,109 +1,76 @@
 {
   "kind": "build_request",
-  "title": "Binance-style promo ticker, real-time BTC pricing, and UI polish",
+  "title": "Fix live BTC price feed and remove 'rate unavailable' by adding a working API fallback + ticker display",
   "projectName": "Binance Gift Cards",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a Binance-style top running ticker banner that is visible across the site (all routes) and continuously scrolls a promotional message about a limited-time 50% discount.",
+      "text": "Update the BTC/USDT live rate hook to use a real, reliable live price API with automatic refresh, and add a second API fallback so the app does not get stuck on a 'rate unavailable' state when one provider fails (e.g., keep CoinGecko but add a second provider such as Binance BTCUSDT ticker).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "recent-messages-4"
         ],
         "quotes": [
-          "1 upr Ticker run krta rhy jis mai Flash 50% discount on all orders k bary mai btaya ho k ye offer kisi special waja se mil rhi sirf limited time k liye etc etc…",
-          "Ticker binance style or han ticker text thora engaging or bhi kuch attractive persuading line add kr"
+          "O bhai Bitcoin price to update krdy Live Price tum kr he ni rhy… rate unavailable arhaa tum koi API add kr he ni rhy jo live bitcoin price current price update de us mai 😮‍💨 mere credits zaya krwa rha bs tuu"
         ]
       },
       "acceptanceCriteria": [
-        "A ticker/banner appears at the very top of the app on every page and scrolls horizontally (marquee-style).",
-        "Ticker visual style matches a Binance-like look (binance-yellow accent, dark background, high contrast, compact height).",
-        "Ticker continues animating smoothly and does not block page interaction or cause layout shift.",
-        "Ticker is responsive (works on mobile and desktop) and does not overlap the sticky header/navigation."
+        "When the primary rate provider request fails (non-2xx, timeout, invalid JSON/shape), the hook automatically attempts the fallback provider and returns a live rate if the fallback succeeds.",
+        "The hook continues to auto-refresh at least every 60 seconds (existing behavior preserved) and refreshes on reconnect/focus.",
+        "The hook returns a usable rate along with metadata indicating which provider was used (e.g., 'CoinGecko', 'Binance', 'Cached', 'Fallback'), without breaking existing consumers (DenominationCardGrid, OrderStatusPage).",
+        "If both live providers fail, the hook uses the last cached successful rate (even if older than the current 1-hour limit) when available, and clearly marks it as cached/stale via the returned source/flags.",
+        "Only if no cached rate exists does the hook use the hardcoded fallback rate, and it must be clearly flagged as fallback in the returned state."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the ticker message copy to be more engaging and persuasive (English only) while clearly communicating: “Flash 50% discount on all orders”, a limited-time nature, and a special/bonus reason for the offer.",
+      "text": "Add a live BTC price readout to the top promo ticker so users can see the current BTC price updating automatically, and ensure the ticker shows clear English status when the live price cannot be fetched (e.g., 'Live BTC price unavailable — showing cached rate').",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "recent-messages-4"
         ],
         "quotes": [
-          "Ticker binance style or han ticker text thora engaging or bhi kuch attractive persuading line add kr"
+          "Bitcoin price to update krdy Live Price ... rate unavailable ... live bitcoin price current price update"
         ]
       },
       "acceptanceCriteria": [
-        "Ticker text is in English and includes: (1) Flash sale/50% off wording, (2) limited-time urgency, and (3) a special-offer reason (e.g., bonus, anniversary, limited allocation) without sounding like placeholder text.",
-        "The full message is readable during scrolling (adequate spacing, no clipping)."
+        "PromoTicker displays the current BTC/USDT value in a concise format (e.g., 'BTC: $xx,xxx') and updates as the rate hook refetches.",
+        "If the hook is currently loading, the ticker shows an English loading state (e.g., 'Loading BTC price…') without rendering 'undefined' or a blank value.",
+        "If the app is using cached or fallback pricing, the ticker displays an English indicator reflecting that state (cached vs fallback) instead of silently showing a price.",
+        "No user-facing ticker text contains non-English copy (keep user-facing text in English)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Ensure BTC/USDT pricing is real-time and auto-refreshes, and that all BTC-derived amounts displayed in the UI update according to the latest fetched rate (including any top/summary rate display and the catalog pricing calculations).",
+      "text": "Ensure all storefront and order pages that display BTC conversions use the same effective live rate data and show a consistent, user-friendly English indicator when the displayed conversion is based on cached or fallback pricing.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "recent-messages-4"
         ],
         "quotes": [
-          "Bitcoin ki Live price mention ki hui wo to kafi time sy Stable ha ... wo Real time update hoti jae usi hisab sy neechy price mai bhi BTC update hota jae tmny to usko static rkha hua"
+          "rate unavailable arhaa"
         ]
       },
       "acceptanceCriteria": [
-        "The BTC/USDT rate used for UI conversions auto-refreshes without requiring a page reload.",
-        "When the rate changes, BTC amounts shown for the same USDT denomination update accordingly in the catalog UI.",
-        "Loading and fallback states for the rate do not break the page; the UI continues to render gracefully."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Make gift card denomination cards smaller and more Binance-like in layout and density, avoiding a black/brown theme and keeping the existing Binance-style color palette.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "gift cards thory small kr ... black brown theme na dy lakin binance ki trh lgy k bianane gift cards hain"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Denomination cards appear more compact (reduced padding/typography scale) while remaining readable and tappable on mobile.",
-        "The overall styling maintains a Binance-like dark + yellow aesthetic and does not introduce black/brown styling.",
-        "Selected/hover states remain clear and consistent with the Binance accent color."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Remove the “Built with ❤️ using caffeine.ai” branding/link from the footer UI.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages"
-        ],
-        "quotes": [
-          "Or secondly built with caffeine ai ye bhi remove krdy.."
-        ]
-      },
-      "acceptanceCriteria": [
-        "The footer no longer displays any “Built with … caffeine.ai” text or link.",
-        "No other footer content (copyright, links) is removed unintentionally."
+        "DenominationCardGrid continues to render the rate label and badge state correctly, and the badge text remains accurate based on the updated hook sources (including any new provider).",
+        "OrderStatusPage continues to display 'Based on current rate (SOURCE)' and SOURCE correctly reflects the actual provider/cached/fallback state returned by the hook.",
+        "No part of the UI shows a misleading 'live' label when the app is using fallback pricing."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui (compose them instead).",
-    "Do not modify files listed as immutable in SYSTEM_CONTEXT (e.g., useActor/useInternetIdentity/main.tsx).",
+    "Do not edit files under frontend/src/components/ui (Shadcn components are read-only and must be composed).",
+    "Do not modify frontend immutable hook files listed in SYSTEM_CONTEXT (useActor/useInternetIdentity/main entry).",
     "Keep all user-facing text in English."
   ],
   "nonGoals": [
-    "No backend/Motoko changes are required for the ticker, footer text removal, or UI styling changes.",
-    "Do not add third-party auth providers or external databases.",
-    "Do not add real-time transport features (e.g., WebSockets)."
+    "Adding third-party authentication beyond Internet Identity.",
+    "Adding external databases or any non-Internet-Computer backend services.",
+    "Implementing real-time sockets/WebSockets for price streaming (periodic polling is sufficient)."
   ],
   "imageRequirements": {
     "required": [],
@@ -112,7 +79,9 @@
   "userProfileUpdate": {
     "goalsToAdd": [],
     "goalsToRemove": [],
-    "preferencesToAdd": [],
+    "preferencesToAdd": [
+      "User-facing text should be English"
+    ],
     "preferencesToRemove": [],
     "miscToAdd": [],
     "miscToRemove": [],

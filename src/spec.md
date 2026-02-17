@@ -1,13 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Improve the Binance Gift Cards UI with a site-wide Binance-style promo ticker, real-time BTC/USDT pricing updates, more compact denomination cards, and cleaned-up footer branding.
+**Goal:** Make the BTC/USDT live rate reliably update without getting stuck as “rate unavailable” by adding a working API fallback, and surface the live BTC price + status clearly across the UI.
 
 **Planned changes:**
-- Add a top-of-page, all-routes running ticker banner (Binance-like dark background with yellow accent) that scrolls smoothly and does not interfere with header/navigation or page interaction.
-- Update the ticker copy (English) to be more engaging while clearly stating a flash 50% discount, limited-time urgency, and a credible special-offer reason.
-- Make BTC/USDT rate fetching auto-refresh and ensure all BTC-derived UI amounts (including any summary/top rate display and catalog conversions) update when the rate changes, with graceful loading/fallback states.
-- Adjust gift card denomination cards to be more compact and Binance-like in density/layout while keeping the existing Binance-style palette and avoiding black/brown styling.
-- Remove the “Built with ❤️ using caffeine.ai” text/link from the footer without removing other footer content.
+- Update the BTC/USDT live rate hook to use a reliable primary live price API with automatic refresh, plus a secondary fallback provider when the primary fails.
+- Preserve auto-refresh behavior (at least every 60 seconds) and refetch on reconnect/focus, while returning rate metadata indicating the active source (primary, fallback, cached/stale, hardcoded fallback).
+- Improve failure handling: if both providers fail, use last cached successful rate even if older than the previous limit and mark it as cached/stale; only use a hardcoded fallback when no cached rate exists, clearly flagged.
+- Add a live BTC price readout to the PromoTicker (e.g., “BTC: $xx,xxx”) with English loading and unavailable/cached/fallback status messaging.
+- Ensure storefront and order pages use the same effective rate data and display consistent, user-friendly English indicators when conversions are based on cached or fallback pricing (including accurate source labels/badges).
 
-**User-visible outcome:** Users see a Binance-style promo ticker across the entire site, live-updating BTC-based pricing throughout the UI, a more compact Binance-like gift card catalog layout, and a footer without caffeine.ai branding.
+**User-visible outcome:** Users see a continuously updating BTC price in the promo ticker, and all BTC conversions across storefront/order pages remain consistent with clear English indicators when the app is using live, cached, or fallback pricing—avoiding “rate unavailable” whenever possible.

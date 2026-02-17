@@ -1,50 +1,60 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T10:15:37.409Z",
-  "summary": "Implemented a global Binance-styled promo ticker, introduced an auto-refreshing BTC/USDT rate hook and integrated it into pricing displays, compacted denomination cards with Binance-themed styling, and (per SiteLayout summary) removed the caffeine.ai footer branding. Also includes several additional UI/robustness changes not requested (e.g., admin visibility logic, error boundary/hardening).",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-17T10:31:25.402Z",
+  "summary": "REQ-1 is largely implemented (CoinGecko primary + Binance fallback + cached + hardcoded fallback, 60s polling, and source metadata). Ticker and UI indicators were added/updated, but PromoTicker’s “unavailable/cached/fallback” messaging does not fully meet REQ-2, and focus/reconnect refetch behavior cannot be confirmed from the truncated hook diff.",
+  "missing_requirements": [
     {
-      "description": "Added new global error boundary/fallback behavior around the app (GlobalErrorBoundary/GlobalErrorFallbackPage).",
-      "reason": "Not requested by any REQ; BuildRequest focuses on ticker, pricing refresh, card density/theme, and footer branding removal.",
+      "id": "REQ-1",
+      "requirement": "The hook refreshes on reconnect/focus (in addition to at least every 60 seconds).",
+      "reason": "The diff confirms a 60s refetchInterval, but the relevant React Query options for refetch-on-focus/reconnect are not visible due to truncation, so this requirement cannot be verified as implemented.",
       "evidence": [
-        "frontend-file-summaries.txt (App.tsx summary mentions GlobalErrorBoundary/GlobalErrorFallbackPage)"
+        "frontend/src/hooks/useBtcUsdtRate.ts (truncated at useQuery options; only refetchInterval is visible)"
       ]
     },
     {
-      "description": "Changed admin link visibility logic and added extra safety wrappers (e.g., SafeSection around RecentOrdersMenu).",
-      "reason": "Not requested by any REQ; this is additional access-control/robustness behavior.",
+      "id": "REQ-2",
+      "requirement": "If the app is using cached or fallback pricing, the ticker displays an English indicator reflecting that state (cached vs fallback) instead of silently showing a price.",
+      "reason": "PromoTicker shows a generic ticker label from getBtcRateTickerLabel(). For fallback it returns \"Unavailable\" (not explicitly \"Fallback\"), and for cached it returns \"Cached\"/\"Cached (stale)\"; the acceptance criteria asks for cached vs fallback indication. The fallback state is not labeled as fallback in the ticker.",
       "evidence": [
-        "frontend/src/components/layout/SiteLayout.tsx (shows showAdminLink logic and SafeSection wrapper)",
-        "frontend-file-summaries.txt (SiteLayout summary mentions “hardened admin link visibility”)"
+        "frontend/src/components/layout/PromoTicker.tsx (uses getBtcRateTickerLabel(source, ...))",
+        "frontend/src/utils/btcRate.ts (getBtcRateTickerLabel: source 'Fallback' -> 'Unavailable')"
       ]
     },
     {
-      "description": "Added localStorage caching, cached/fallback source labeling, and badges for BTC rate source.",
-      "reason": "REQ-3 requires auto-refresh and graceful loading/fallback, but explicit caching/source badges and localStorage persistence are additional features beyond the stated requirements.",
+      "id": "REQ-2",
+      "requirement": "Ensure the ticker shows clear English status when the live price cannot be fetched (e.g., 'Live BTC price unavailable — showing cached rate').",
+      "reason": "The implemented status strings do not include a clear message indicating that live fetch failed and that a cached rate is being shown (the example wording is not required verbatim, but the intent is). Current outputs are short labels like \"Cached rate\" / \"Cached rate (stale)\" and for fallback \"Unavailable\" / \"Rate unavailable\" rather than explicitly stating what is being shown when live fetching fails.",
       "evidence": [
-        "frontend/src/hooks/useBtcUsdtRate.ts (CACHE_KEY/localStorage caching, Cached/Fallback sources)",
-        "frontend/src/components/storefront/DenominationCardGrid.tsx (badges: “Using cached rate”, “Rate unavailable - using fallback”)"
-      ]
-    },
-    {
-      "description": "Promo ticker includes emoji characters and repeated message blocks with icons.",
-      "reason": "REQ-1/REQ-2 specify style/copy content requirements but do not request emojis, iconography, or repetition strategy; these are extra presentation choices.",
-      "evidence": [
-        "frontend/src/components/layout/PromoTicker.tsx (promoMessage includes emojis; repeats message 3 times with Zap/Clock/Gift icons)"
+        "frontend/src/utils/btcRate.ts (getBtcRateStatusMessage: 'Cached rate', 'Cached rate (stale)', 'Rate unavailable'; ticker label: 'Cached', 'Cached (stale)', 'Unavailable')",
+        "frontend/src/components/layout/PromoTicker.tsx (renders BTC price plus parenthesized btcStatusLabel)"
       ]
     }
   ],
-  "confidence": 0.72,
+  "hallucinated_features": [
+    {
+      "description": "Changed/introduced a specific hardcoded fallback BTC rate value ('Updated fallback for 2026 market' set to 67500).",
+      "reason": "BuildRequest requires a hardcoded fallback only as a last resort and that it be flagged, but does not request updating the numeric fallback value or tying it to a particular year/market assumption.",
+      "evidence": [
+        "frontend/src/hooks/useBtcUsdtRate.ts (FALLBACK_RATE = 67500; comment: 'Updated fallback for 2026 market')"
+      ]
+    },
+    {
+      "description": "Added a new promotional ticker message advertising a flash sale with emoji-heavy copy.",
+      "reason": "REQ-2 asks to add a live BTC price readout and clear status messaging in the existing top promo ticker; it does not request altering the promotional content itself.",
+      "evidence": [
+        "frontend/src/components/layout/PromoTicker.tsx (promoMessage with flash sale text and emojis)"
+      ]
+    }
+  ],
+  "confidence": 0.68,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/components/layout/PromoTicker.tsx",
-    "frontend/src/components/layout/SiteLayout.tsx",
     "frontend/src/components/storefront/DenominationCardGrid.tsx",
     "frontend/src/hooks/useBtcUsdtRate.ts",
-    "frontend/src/index.css",
     "frontend/src/pages/OrderStatusPage.tsx",
+    "frontend/src/utils/btcRate.ts",
     "project_state.json"
   ]
 }

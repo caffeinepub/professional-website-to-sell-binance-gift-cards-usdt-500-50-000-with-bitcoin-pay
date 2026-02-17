@@ -2,12 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-binance-style-top-running-ticker-banner-that-is-visible-across-the-site-all-routes-and-continuously-scrolls-a-promotional-message-about-a-limited-time-50-discount",
-      "featureTitle": "Add a Binance-style top running ticker banner that is visible across the site (all routes) and continuously scrolls a promotional message about a limited-time 50% discount.",
+      "featureId": "feature-update-the-btc-usdt-live-rate-hook-to-use-a-real-reliable-live-price-api-with-automatic-refresh-and-add-a-second-api-fallback-so-the-app-does-not-get-stuck-on-a-rate-unavailable-state-when-one-provider-fails-e-g-keep-coingecko-but-add-a-second-provider-such-as-binance-btcusdt-ticker",
+      "featureTitle": "Update the BTC/USDT live rate hook to use a real, reliable live price API with automatic refresh, and add a second API fallback so the app does not get stuck on a 'rate unavailable' state when one provider fails (e.g., keep CoinGecko but add a second provider such as Binance BTCUSDT ticker).",
       "files": [
-        "frontend/src/components/layout/PromoTicker.tsx",
-        "frontend/src/components/layout/SiteLayout.tsx",
-        "frontend/src/index.css"
+        "frontend/src/hooks/useBtcUsdtRate.ts",
+        "frontend/src/utils/btcRate.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -23,8 +22,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-ticker-message-copy-to-be-more-engaging-and-persuasive-english-only-while-clearly-communicating-flash-50-discount-on-all-orders-a-limited-time-nature-and-a-special-bonus-reason-for-the-offer",
-      "featureTitle": "Update the ticker message copy to be more engaging and persuasive (English only) while clearly communicating: “Flash 50% discount on all orders”, a limited-time nature, and a special/bonus reason for the offer.",
+      "featureId": "feature-add-a-live-btc-price-readout-to-the-top-promo-ticker-so-users-can-see-the-current-btc-price-updating-automatically-and-ensure-the-ticker-shows-clear-english-status-when-the-live-price-cannot-be-fetched-e-g-live-btc-price-unavailable-showing-cached-rate",
+      "featureTitle": "Add a live BTC price readout to the top promo ticker so users can see the current BTC price updating automatically, and ensure the ticker shows clear English status when the live price cannot be fetched (e.g., 'Live BTC price unavailable — showing cached rate').",
       "files": [
         "frontend/src/components/layout/PromoTicker.tsx"
       ],
@@ -42,11 +41,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-btc-usdt-pricing-is-real-time-and-auto-refreshes-and-that-all-btc-derived-amounts-displayed-in-the-ui-update-according-to-the-latest-fetched-rate-including-any-top-summary-rate-display-and-the-catalog-pricing-calculations",
-      "featureTitle": "Ensure BTC/USDT pricing is real-time and auto-refreshes, and that all BTC-derived amounts displayed in the UI update according to the latest fetched rate (including any top/summary rate display and the catalog pricing calculations).",
+      "featureId": "feature-ensure-all-storefront-and-order-pages-that-display-btc-conversions-use-the-same-effective-live-rate-data-and-show-a-consistent-user-friendly-english-indicator-when-the-displayed-conversion-is-based-on-cached-or-fallback-pricing",
+      "featureTitle": "Ensure all storefront and order pages that display BTC conversions use the same effective live rate data and show a consistent, user-friendly English indicator when the displayed conversion is based on cached or fallback pricing.",
       "files": [
         "frontend/src/components/storefront/DenominationCardGrid.tsx",
-        "frontend/src/hooks/useBtcUsdtRate.ts",
         "frontend/src/pages/OrderStatusPage.tsx"
       ],
       "components": [
@@ -59,44 +57,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-make-gift-card-denomination-cards-smaller-and-more-binance-like-in-layout-and-density-avoiding-a-black-brown-theme-and-keeping-the-existing-binance-style-color-palette",
-      "featureTitle": "Make gift card denomination cards smaller and more Binance-like in layout and density, avoiding a black/brown theme and keeping the existing Binance-style color palette.",
-      "files": [
-        "frontend/src/components/storefront/DenominationCardGrid.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-remove-the-built-with-using-caffeine-ai-branding-link-from-the-footer-ui",
-      "featureTitle": "Remove the “Built with ❤️ using caffeine.ai” branding/link from the footer UI.",
-      "files": [
-        "frontend/src/components/layout/SiteLayout.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
       ],
       "confidence": "high"
     }

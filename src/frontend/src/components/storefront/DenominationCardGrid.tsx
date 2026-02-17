@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, TrendingUp, Loader2 } from 'lucide-react';
+import { Check, TrendingUp, Loader2, AlertCircle } from 'lucide-react';
 import { SiBinance } from 'react-icons/si';
 import { SUPPORTED_DENOMINATIONS } from '@/utils/denominations';
 import { calculateDiscountedAmount, calculateBtcAmountWithDiscount } from '@/utils/pricing';
 import { useBtcUsdtRate } from '@/hooks/useBtcUsdtRate';
+import { formatBtcRate, getBtcRateStatusMessage, shouldShowRateWarning } from '@/utils/btcRate';
 
 interface DenominationCardGridProps {
   selectedDenomination: number;
@@ -12,7 +13,10 @@ interface DenominationCardGridProps {
 }
 
 export function DenominationCardGrid({ selectedDenomination, onSelect }: DenominationCardGridProps) {
-  const { effectiveRate, source, isLoading, isFetched } = useBtcUsdtRate();
+  const { effectiveRate, source, isLoading, isFetched, isLive, isUsingCache, isCachedStale } = useBtcUsdtRate();
+  
+  const statusMessage = getBtcRateStatusMessage(source, isLoading, isFetched);
+  const showWarning = shouldShowRateWarning(source);
 
   return (
     <div className="space-y-4">
@@ -26,23 +30,35 @@ export function DenominationCardGrid({ selectedDenomination, onSelect }: Denomin
             ) : (
               <>
                 <span className="font-mono font-bold text-binance-yellow">
-                  ${effectiveRate.toLocaleString()}
+                  {formatBtcRate(effectiveRate)}
                 </span>
                 <span className="ml-1 text-xs text-binance-yellow/70">
-                  ({source === 'Loading' ? 'Loading...' : source})
+                  ({statusMessage})
                 </span>
               </>
             )}
           </span>
         </div>
-        {source === 'Cached' && (
-          <Badge variant="outline" className="text-xs border-binance-yellow/50 text-binance-yellow py-0 h-5">
-            Using cached rate
+        {isLive && (
+          <Badge variant="outline" className="text-xs border-green-500/50 text-green-400 py-0 h-5">
+            Live
           </Badge>
         )}
-        {source === 'Fallback' && (
-          <Badge variant="outline" className="text-xs border-yellow-500/50 text-yellow-500 py-0 h-5">
-            Rate unavailable - using fallback
+        {isUsingCache && !isCachedStale && (
+          <Badge variant="outline" className="text-xs border-binance-yellow/50 text-binance-yellow py-0 h-5">
+            Cached
+          </Badge>
+        )}
+        {isCachedStale && (
+          <Badge variant="outline" className="text-xs border-yellow-500/50 text-yellow-400 py-0 h-5 gap-1">
+            <AlertCircle className="h-3 w-3" />
+            Cached (stale)
+          </Badge>
+        )}
+        {showWarning && source === 'Fallback' && (
+          <Badge variant="outline" className="text-xs border-red-500/50 text-red-400 py-0 h-5 gap-1">
+            <AlertCircle className="h-3 w-3" />
+            Fallback rate
           </Badge>
         )}
       </div>

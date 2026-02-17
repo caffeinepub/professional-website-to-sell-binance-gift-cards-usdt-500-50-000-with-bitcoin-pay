@@ -1,33 +1,31 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T10:15:37.412Z",
+  "generatedAt": "2026-02-17T10:31:25.405Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 5,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a Binance-style top running ticker banner that is visible across the site (all routes) and continuously scrolls a promotional message about a limited-time 50% discount.",
+        "summary": "Update the BTC/USDT live rate hook to use a real, reliable live price API with automatic refresh, and add a second API fallback so the app does not get stuck on a 'rate unavailable' state when one provider fails (e.g., keep CoinGecko but add a second provider such as Binance BTCUSDT ticker).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/layout/PromoTicker.tsx",
-          "frontend/src/components/layout/SiteLayout.tsx",
-          "frontend/src/index.css"
+          "frontend/src/hooks/useBtcUsdtRate.ts",
+          "frontend/src/utils/btcRate.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/layout/PromoTicker.tsx",
-          "frontend/src/components/layout/SiteLayout.tsx",
-          "frontend/src/index.css"
+          "frontend/src/hooks/useBtcUsdtRate.ts",
+          "frontend/src/utils/btcRate.ts"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Update the ticker message copy to be more engaging and persuasive (English only) while clearly communicating: “Flash 50% discount on all orders”, a limited-time nature, and a special/bonus reason for the offer.",
+        "summary": "Add a live BTC price readout to the top promo ticker so users can see the current BTC price updating automatically, and ensure the ticker shows clear English status when the live price cannot be fetched (e.g., 'Live BTC price unavailable — showing cached rate').",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/layout/PromoTicker.tsx"
@@ -38,57 +36,29 @@
       },
       {
         "id": "REQ-3",
-        "summary": "Ensure BTC/USDT pricing is real-time and auto-refreshes, and that all BTC-derived amounts displayed in the UI update according to the latest fetched rate (including any top/summary rate display and the catalog pricing calculations).",
+        "summary": "Ensure all storefront and order pages that display BTC conversions use the same effective live rate data and show a consistent, user-friendly English indicator when the displayed conversion is based on cached or fallback pricing.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useBtcUsdtRate.ts",
-          "frontend/src/components/storefront/DenominationCardGrid.tsx",
-          "frontend/src/pages/CheckoutPage.tsx",
-          "frontend/src/pages/OrderStatusPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useBtcUsdtRate.ts",
           "frontend/src/components/storefront/DenominationCardGrid.tsx",
           "frontend/src/pages/OrderStatusPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Make gift card denomination cards smaller and more Binance-like in layout and density, avoiding a black/brown theme and keeping the existing Binance-style color palette.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/storefront/DenominationCardGrid.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/storefront/DenominationCardGrid.tsx"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Remove the “Built with ❤️ using caffeine.ai” branding/link from the footer UI.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/SiteLayout.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/SiteLayout.tsx"
+          "frontend/src/components/storefront/DenominationCardGrid.tsx",
+          "frontend/src/pages/OrderStatusPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/components/layout/PromoTicker.tsx",
-    "frontend/src/components/layout/SiteLayout.tsx",
     "frontend/src/components/storefront/DenominationCardGrid.tsx",
-    "frontend/src/config.ts",
     "frontend/src/hooks/useBtcUsdtRate.ts",
-    "frontend/src/index.css",
     "frontend/src/pages/OrderStatusPage.tsx",
+    "frontend/src/utils/btcRate.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

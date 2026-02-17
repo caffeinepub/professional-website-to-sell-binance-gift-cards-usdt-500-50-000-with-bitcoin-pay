@@ -9,6 +9,7 @@ import { useGetOrder } from '@/hooks/useQueries';
 import { useBtcUsdtRate } from '@/hooks/useBtcUsdtRate';
 import { convertBtcToUsdtWithRate } from '@/utils/pricing';
 import { getSimplifiedOrderStatus, getStatusBadgeVariant } from '@/utils/orderStatus';
+import { getBtcRateStatusMessage } from '@/utils/btcRate';
 import { OrderStatus } from '@/backend';
 import { Loader2, AlertCircle, CheckCircle2, Clock, XCircle, Package } from 'lucide-react';
 
@@ -16,7 +17,7 @@ export default function OrderStatusPage() {
   const { orderId } = useParams({ strict: false }) as { orderId: string };
   const navigate = useNavigate();
   const { data: order, isLoading, isError } = useGetOrder(orderId);
-  const { effectiveRate, source } = useBtcUsdtRate();
+  const { effectiveRate, source, isLoading: rateLoading, isFetched: rateFetched } = useBtcUsdtRate();
 
   if (isLoading) {
     return (
@@ -51,6 +52,9 @@ export default function OrderStatusPage() {
 
   // Calculate estimated USDT amount from BTC amount using current live rate
   const estimatedUsdtAmount = convertBtcToUsdtWithRate(order.amountInBitcoin, effectiveRate);
+  
+  // Get rate status message
+  const rateStatusMessage = getBtcRateStatusMessage(source, rateLoading, rateFetched);
 
   // Get icon for status badge
   const getStatusIcon = () => {
@@ -128,7 +132,7 @@ export default function OrderStatusPage() {
                   ≈ ${estimatedUsdtAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Based on current rate ({source})
+                  Based on current rate ({rateStatusMessage})
                 </p>
               </div>
             </div>

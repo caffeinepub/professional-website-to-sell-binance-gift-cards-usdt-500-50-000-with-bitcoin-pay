@@ -1,109 +1,66 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Binance-style promo ticker, real-time BTC pricing, and UI polish",
+  "title": "Reliable BTC/USDT polling with API fallback + live ticker readout and consistent cached/fallback indicators",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a Binance-style top promo ticker visible across all routes with smooth marquee scrolling.",
+      "summary": "Harden BTC/USDT rate hook with a reliable live provider, automatic refresh, and a second provider fallback plus improved cache/fallback behavior and metadata.",
       "acceptanceCriteria": [
-        "A ticker/banner appears at the very top of the app on every page and scrolls horizontally (marquee-style).",
-        "Ticker visual style matches a Binance-like look (binance-yellow accent, dark background, high contrast, compact height).",
-        "Ticker continues animating smoothly and does not block page interaction or cause layout shift.",
-        "Ticker is responsive (works on mobile and desktop) and does not overlap the sticky header/navigation."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/layout/PromoTicker.tsx",
-          "operation": "create",
-          "description": "Create a reusable PromoTicker layout component that renders a compact, high-contrast Binance-style marquee banner and does not capture pointer events (so it won't block page interaction)."
-        },
-        {
-          "path": "frontend/src/components/layout/SiteLayout.tsx",
-          "operation": "modify",
-          "description": "Wire PromoTicker into the global layout so it appears on every route, reserving vertical space to avoid layout shift and offsetting the sticky header so it does not overlap the ticker."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add global CSS keyframes and utility classes for the ticker marquee animation (smooth continuous scroll) and compact styling aligned to the existing Binance theme variables."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Replace ticker copy with engaging English promo messaging communicating flash 50% off, urgency, and a special reason.",
-      "acceptanceCriteria": [
-        "Ticker text is in English and includes: (1) Flash sale/50% off wording, (2) limited-time urgency, and (3) a special-offer reason (e.g., bonus, anniversary, limited allocation) without sounding like placeholder text.",
-        "The full message is readable during scrolling (adequate spacing, no clipping)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/layout/PromoTicker.tsx",
-          "operation": "modify",
-          "description": "Update the ticker message string(s) to an engaging English-only line that clearly includes: flash 50% discount on all orders, limited-time urgency, and a specific special-offer reason; ensure spacing prevents clipping while scrolling."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Ensure BTC/USDT rate auto-refreshes and all BTC-derived UI amounts update from the latest fetched rate with graceful loading/fallback.",
-      "acceptanceCriteria": [
-        "The BTC/USDT rate used for UI conversions auto-refreshes without requiring a page reload.",
-        "When the rate changes, BTC amounts shown for the same USDT denomination update accordingly in the catalog UI.",
-        "Loading and fallback states for the rate do not break the page; the UI continues to render gracefully."
+        "When the primary rate provider request fails (non-2xx, timeout, invalid JSON/shape), the hook automatically attempts the fallback provider and returns a live rate if the fallback succeeds.",
+        "The hook continues to auto-refresh at least every 60 seconds (existing behavior preserved) and refreshes on reconnect/focus.",
+        "The hook returns a usable rate along with metadata indicating which provider was used (e.g., 'CoinGecko', 'Binance', 'Cached', 'Fallback'), without breaking existing consumers (DenominationCardGrid, OrderStatusPage).",
+        "If both live providers fail, the hook uses the last cached successful rate (even if older than the current 1-hour limit) when available, and clearly marks it as cached/stale via the returned source/flags.",
+        "Only if no cached rate exists does the hook use the hardcoded fallback rate, and it must be clearly flagged as fallback in the returned state."
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useBtcUsdtRate.ts",
           "operation": "modify",
-          "description": "Harden the auto-refresh behavior for the BTC/USDT query (keep periodic refresh; ensure the query continues refetching under typical user conditions such as window focus/reconnect) while preserving existing cached/fallback logic and safe UI state flags."
+          "description": "Update the hook to (1) fetch BTC/USDT from a primary provider (keep CoinGecko) and (2) automatically fall back to a second provider (e.g., Binance BTCUSDT ticker) on any primary failure, including non-2xx, timeout, or invalid JSON/shape. Preserve existing polling/refresh behavior (>=60s, refetch on focus/reconnect). Expand returned metadata to include the actual provider used (e.g., 'CoinGecko' | 'Binance' | 'Cached' | 'Fallback') and add explicit flags for cached vs cached-stale vs hardcoded fallback while keeping existing return fields compatible for current consumers."
         },
+        {
+          "path": "frontend/src/utils/btcRate.ts",
+          "operation": "create",
+          "description": "Add shared utilities for BTC rate formatting and user-facing English status messaging based on the hook state (live vs cached vs cached-stale vs hardcoded fallback) so multiple UI surfaces can render consistent indicator text without duplicating logic."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Show a live BTC price readout in the top promo ticker with clear English loading/unavailable/cached/fallback status.",
+      "acceptanceCriteria": [
+        "PromoTicker displays the current BTC/USDT value in a concise format (e.g., 'BTC: $xx,xxx') and updates as the rate hook refetches.",
+        "If the hook is currently loading, the ticker shows an English loading state (e.g., 'Loading BTC price…') without rendering 'undefined' or a blank value.",
+        "If the app is using cached or fallback pricing, the ticker displays an English indicator reflecting that state (cached vs fallback) instead of silently showing a price.",
+        "No user-facing ticker text contains non-English copy (keep user-facing text in English)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/PromoTicker.tsx",
+          "operation": "modify",
+          "description": "Wire PromoTicker to consume useBtcUsdtRate and display a concise live BTC readout (e.g., 'BTC: $xx,xxx') that updates automatically. Add explicit English UI states for loading and for unavailable live price (e.g., showing cached rate vs hardcoded fallback), leveraging the shared btcRate utilities for consistent messaging."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Ensure all conversion displays use the same effective rate and consistently label cached/fallback pricing in English across storefront and order pages.",
+      "acceptanceCriteria": [
+        "DenominationCardGrid continues to render the rate label and badge state correctly, and the badge text remains accurate based on the updated hook sources (including any new provider).",
+        "OrderStatusPage continues to display 'Based on current rate (SOURCE)' and SOURCE correctly reflects the actual provider/cached/fallback state returned by the hook.",
+        "No part of the UI shows a misleading 'live' label when the app is using fallback pricing."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/components/storefront/DenominationCardGrid.tsx",
           "operation": "modify",
-          "description": "Ensure all BTC-derived amounts in the denomination grid are computed from the latest rate returned by useBtcUsdtRate (single source of truth) and that loading/fallback labels render without breaking layout."
-        },
-        {
-          "path": "frontend/src/pages/CheckoutPage.tsx",
-          "operation": "modify",
-          "description": "Ensure any BTC conversion/summary text shown during checkout reads the latest rate from useBtcUsdtRate so displayed BTC estimates update automatically while keeping the page functional during rate loading/fallback."
+          "description": "Update the storefront rate indicator to reflect the expanded hook metadata: show provider names (including the new fallback provider), and display accurate English badges/labels when using cached, cached-stale, or hardcoded fallback pricing. Ensure no UI implies a live rate when cached/fallback is in effect, and continue using the hook’s effectiveRate for all BTC conversions."
         },
         {
           "path": "frontend/src/pages/OrderStatusPage.tsx",
           "operation": "modify",
-          "description": "Ensure BTC-derived estimate displays on the order status page continue to use the latest rate from useBtcUsdtRate and render safely when the rate is loading or falling back."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Make denomination cards more compact and Binance-like while keeping the existing dark + yellow palette (no black/brown theme).",
-      "acceptanceCriteria": [
-        "Denomination cards appear more compact (reduced padding/typography scale) while remaining readable and tappable on mobile.",
-        "The overall styling maintains a Binance-like dark + yellow aesthetic and does not introduce black/brown styling.",
-        "Selected/hover states remain clear and consistent with the Binance accent color."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/storefront/DenominationCardGrid.tsx",
-          "operation": "modify",
-          "description": "Adjust denomination card density (smaller typography, reduced padding, tighter grid gaps, compact badges) while preserving Binance dark surfaces and binance-yellow accents; keep selected/hover borders and glows clear and consistent."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Remove the caffeine.ai branding/link from the footer without removing other footer content.",
-      "acceptanceCriteria": [
-        "The footer no longer displays any “Built with … caffeine.ai” text or link.",
-        "No other footer content (copyright, links) is removed unintentionally."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/layout/SiteLayout.tsx",
-          "operation": "modify",
-          "description": "Remove the “Built with ❤️ using caffeine.ai” line/link from the footer while keeping the rest of the footer structure and content unchanged."
+          "description": "Adjust the 'Based on current rate (SOURCE)' line to use the updated hook metadata and consistent English wording for cached/cached-stale/fallback scenarios (while still showing SOURCE accurately). Ensure the page continues using the same effectiveRate value returned by the hook for conversion calculations."
         }
       ]
     }
