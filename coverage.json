@@ -1,0 +1,182 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-03-01T12:20:21.242Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 10,
+    "implemented": 8,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Create an Admin Dashboard overview page at /admin that displays key metrics cards: Total Orders, Pending Orders, Completed Orders, Total Revenue (in USDT), and current BTC/USDT rate. Each metric card should show a count or value with a trend indicator.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-10",
+        "summary": "Add a Recent Activity feed section on the Admin Dashboard that lists the 10 most recent orders and 5 most recent contact messages in a unified timeline-style list, showing order ID, status, amount, and time elapsed since creation.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/admin/RecentActivityFeed.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/utils/timeElapsed.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/admin/RecentActivityFeed.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/utils/timeElapsed.ts"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Add a backend query function `getAdminStats` that returns aggregated stats: total order count, count by status (pending, processing, completed, cancelled), total USDT revenue from completed orders, and total number of contact messages.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Add a Revenue & Orders analytics section to the Admin Dashboard that shows a bar or line chart visualizing order volume and revenue over time (grouped by day or week based on order creation timestamps).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/admin/RevenueChart.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/package.json"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/admin/RevenueChart.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Enhance the Admin Orders page with filtering and sorting capabilities: filter by status (All, Pending, Processing, Completed, Cancelled), sort by date (newest/oldest), and show a summary count for each status as tab-style filters at the top of the list.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/admin/AdminOrdersPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/admin/AdminOrdersPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Enhance the Admin Order Detail page to allow bulk status updates: add a quick-action toolbar on the AdminOrdersPage that lets the admin select multiple orders (via checkboxes) and update all selected orders' status at once.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/admin/AdminOrdersPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/admin/AdminOrdersPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add a backend query `getOrdersByDenomination` that returns a breakdown of orders grouped by denomination amount, so the admin can see which gift card values (e.g., $10, $25, $50, $100) are most popular.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Add a Card Inventory / Sales Breakdown section to the Admin Dashboard that shows a pie or donut chart of orders distributed by denomination (using data from `getOrdersByDenomination`), highlighting which gift card values sell most.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/admin/DenominationBreakdownChart.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/admin/DenominationBreakdownChart.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Enhance the Admin Contact Messages page with unread/read status tracking: mark messages as read when an admin opens or views them, show an unread count badge on the sidebar navigation link, and visually distinguish unread messages (bold or highlighted row) from read ones.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/admin/AdminContactMessagesPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/admin/AdminSidebar.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/admin/AdminContactMessagesPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/admin/AdminSidebar.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-9",
+        "summary": "Add a left sidebar navigation to the Admin Panel with links to: Dashboard (overview), Orders, Contact Messages, and Analytics. The sidebar should show active route highlighting and display badge counts for Pending Orders and Unread Messages.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/admin/AdminSidebar.tsx",
+          "frontend/src/components/admin/AdminLayout.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/pages/admin/AdminOrdersPage.tsx",
+          "frontend/src/pages/admin/AdminContactMessagesPage.tsx",
+          "frontend/src/pages/admin/AdminOrderDetailPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/admin/AdminSidebar.tsx",
+          "frontend/src/components/admin/AdminLayout.tsx",
+          "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "frontend/src/pages/admin/AdminOrdersPage.tsx",
+          "frontend/src/pages/admin/AdminContactMessagesPage.tsx",
+          "frontend/src/pages/admin/AdminOrderDetailPage.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "build-request.json",
+    "build-template/README.md",
+    "caffeine.lock.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/admin/AdminLayout.tsx",
+    "frontend/src/components/admin/AdminSidebar.tsx",
+    "frontend/src/components/admin/DenominationBreakdownChart.tsx",
+    "frontend/src/components/admin/RecentActivityFeed.tsx",
+    "frontend/src/components/admin/RevenueChart.tsx",
+    "frontend/src/components/layout/SiteLayout.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/CheckoutPage.tsx",
+    "frontend/src/pages/admin/AdminContactMessagesPage.tsx",
+    "frontend/src/pages/admin/AdminDashboardPage.tsx",
+    "frontend/src/pages/admin/AdminOrderDetailPage.tsx",
+    "frontend/src/pages/admin/AdminOrdersPage.tsx",
+    "frontend/src/utils/timeElapsed.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

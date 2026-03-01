@@ -1,0 +1,233 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Upgrade Admin Panel with Full Dashboard Features",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Create Admin Dashboard overview page displaying key metrics cards: Total Orders, Pending Orders, Completed Orders, Total Revenue (USDT), and live BTC/USDT rate with trend indicators",
+      "acceptanceCriteria": [
+        "Dashboard shows Total Orders count",
+        "Dashboard shows Pending Orders count",
+        "Dashboard shows Completed Orders count",
+        "Dashboard shows Total Revenue in USDT",
+        "Dashboard shows live BTC/USDT rate",
+        "All metric cards are visible on load without errors"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "create",
+          "description": "Create the Admin Dashboard overview page that fetches admin stats using getAdminStats backend capability and displays key metric cards. Show Total Orders, Pending Orders, Completed Orders, Total Revenue in USDT, and live BTC/USDT rate (from useBtcUsdtRate hook). Each metric card should display the value with an icon and label. Integrate the AdminLayout wrapper for consistent navigation."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useAdminStats hook that queries the getAdminStats backend capability. Return AdminStats type including totalOrders, pendingOrders, paidOrders, deliveredOrders, cancelledOrders, totalUsdtRevenue, and totalContactMessages. Enable query only when actor is available and user is authenticated admin."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add route registration for /admin path pointing to AdminDashboardPage. Place it before existing /admin/orders route so it matches first. Wrap with AdminRouteGuard like other admin routes."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add Revenue & Orders analytics section to the Admin Dashboard showing a bar or line chart visualizing order volume and revenue over time grouped by day or week",
+      "acceptanceCriteria": [
+        "Chart renders without errors",
+        "Chart shows order counts over time",
+        "Chart shows revenue (USDT) over time",
+        "Chart uses data from existing orders in the backend"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/admin/RevenueChart.tsx",
+          "operation": "create",
+          "description": "Create a RevenueChart component that receives order data and displays a bar or line chart using Recharts library. Group orders by creation date (daily or weekly buckets), calculate order count and total USDT revenue per bucket, and render dual-axis chart showing both metrics. Handle empty data state gracefully."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Add RevenueChart component to the dashboard page below the metric cards section. Fetch all orders using useGetAllOrders hook and pass order data to RevenueChart for visualization. Wrap in SafeSection for error isolation."
+        },
+        {
+          "path": "frontend/package.json",
+          "operation": "modify",
+          "description": "Add recharts library as a dependency for chart rendering: \"recharts\": \"^2.10.0\""
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Enhance Admin Orders page with filtering and sorting capabilities: filter by status with tab-style filters showing counts, and sort by date (newest/oldest)",
+      "acceptanceCriteria": [
+        "Status filter tabs are shown with counts",
+        "Clicking a status tab filters the orders list",
+        "Sort by date (newest/oldest) works correctly",
+        "Selected filter state is visually highlighted"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/admin/AdminOrdersPage.tsx",
+          "operation": "modify",
+          "description": "Add status filter tabs at the top showing All, Pending Payment, Paid, Delivered, and Cancelled with their respective counts. Implement local state for selected filter and sort order. Filter the orders list based on selected status. Add a sort dropdown or toggle for newest/oldest ordering by order ID. Highlight the active filter tab visually using conditional styling."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Enhance Admin Orders page to allow bulk status updates with checkboxes for selection and a quick-action toolbar",
+      "acceptanceCriteria": [
+        "Each order row has a checkbox for selection",
+        "A 'Select All' checkbox exists in the table header",
+        "A bulk action toolbar appears when at least one order is selected",
+        "Admin can update status of all selected orders in one action",
+        "Backend processes bulk status updates correctly"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/admin/AdminOrdersPage.tsx",
+          "operation": "modify",
+          "description": "Add checkbox column to the orders table with individual checkboxes per row. Add Select All checkbox in the table header that toggles all visible orders. Track selected order IDs in component state. Show a bulk action toolbar (sticky or floating bar) when one or more orders are selected, displaying a status dropdown and Update button. Implement bulk update handler that calls bulkUpdateOrderStatus backend capability with selected IDs and chosen status. Clear selections and refetch orders after successful update."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useBulkUpdateOrderStatus mutation hook that calls the bulkUpdateOrderStatus backend capability. Accept array of order IDs and new status. Invalidate getAllOrders and getAdminStats queries on success to refresh dashboard and orders list."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Add Card Inventory / Sales Breakdown section to Admin Dashboard showing a pie or donut chart of orders distributed by denomination",
+      "acceptanceCriteria": [
+        "Chart shows each denomination as a segment",
+        "Chart labels show denomination value and order count",
+        "Chart renders without errors"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/admin/DenominationBreakdownChart.tsx",
+          "operation": "create",
+          "description": "Create a DenominationBreakdownChart component that displays a pie or donut chart using Recharts. Receive denomination breakdown data (denomination value and count pairs) as props. Format labels to show both denomination amount in USDT and order count. Use distinct colors for each segment and include a legend. Handle empty or missing data gracefully."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Fetch denomination breakdown data using useGetOrdersByDenomination hook. Add DenominationBreakdownChart component to the dashboard page, positioned below or beside the RevenueChart. Pass fetched data to the chart component. Wrap in SafeSection for error isolation."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useGetOrdersByDenomination hook that queries the getOrdersByDenomination backend capability. Return array of tuples containing denomination value (bigint) and order count (bigint). Enable query only when actor is available and user is authenticated admin."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Enhance Admin Contact Messages page with unread/read status tracking, visual distinction for unread messages, and unread count badge on sidebar navigation",
+      "acceptanceCriteria": [
+        "Backend stores a read/unread flag per contact message",
+        "Admin can mark a message as read",
+        "Unread messages appear visually distinct in the list",
+        "Sidebar nav link shows unread message count as a badge",
+        "Dashboard overview card shows unread messages count"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/admin/AdminContactMessagesPage.tsx",
+          "operation": "modify",
+          "description": "Update the contact messages table to display unread messages with bold text or highlighted background using the isRead field from ContactMessage. Add a Mark as Read action button or icon for each unread message that calls markContactMessageAsRead backend capability. Automatically mark message as read when admin views or expands its details if applicable. Show read status indicator (e.g., icon or badge) in the row."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useMarkContactMessageAsRead mutation hook that calls markContactMessageAsRead backend capability with message ID. Invalidate getContactMessages and getUnreadContactMessageCount queries on success. Add useGetUnreadContactMessageCount hook that queries getUnreadContactMessageCount backend capability for displaying badge counts."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminSidebar.tsx",
+          "operation": "modify",
+          "description": "Fetch unread contact message count using useGetUnreadContactMessageCount hook. Display the count as a badge on the Contact Messages navigation link. Use conditional rendering to show badge only when count is greater than zero. Style badge prominently (e.g., red or blue circle with white text)."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Add a metric card for Unread Messages displaying the count from useGetUnreadContactMessageCount hook. Position it alongside other metric cards in the overview section."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Add left sidebar navigation to Admin Panel with links to Dashboard, Orders, Contact Messages, and Analytics, showing active route highlighting and badge counts for Pending Orders and Unread Messages",
+      "acceptanceCriteria": [
+        "Sidebar is visible on all admin pages",
+        "Active route link is visually highlighted",
+        "Pending orders badge count is shown on Orders link",
+        "Unread messages badge count is shown on Contact Messages link",
+        "Sidebar navigation links work correctly"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/admin/AdminSidebar.tsx",
+          "operation": "create",
+          "description": "Create AdminSidebar component with navigation links to Dashboard (/admin), Orders (/admin/orders), Contact Messages (/admin/contacts), and Analytics (placeholder or future route). Use React Router's NavLink or useLocation to detect and highlight the active route with conditional styling. Fetch pending orders count from useAdminStats and unread messages count from useGetUnreadContactMessageCount. Display badge counts next to Orders and Contact Messages links. Style sidebar with fixed or sticky positioning, dark or light background, and clear visual separation from main content."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminLayout.tsx",
+          "operation": "create",
+          "description": "Create AdminLayout component that wraps all admin pages. Include AdminSidebar as a persistent left-side navigation panel and a main content area for page-specific content. Use flexbox or grid layout to position sidebar and content. Export AdminLayout for use in admin pages."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Wrap page content with AdminLayout component to ensure sidebar is visible."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminOrdersPage.tsx",
+          "operation": "modify",
+          "description": "Wrap page content with AdminLayout component to ensure sidebar is visible."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminContactMessagesPage.tsx",
+          "operation": "modify",
+          "description": "Wrap page content with AdminLayout component to ensure sidebar is visible."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminOrderDetailPage.tsx",
+          "operation": "modify",
+          "description": "Wrap page content with AdminLayout component to ensure sidebar is visible."
+        }
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "summary": "Add Recent Activity feed section on Admin Dashboard listing the 10 most recent orders and 5 most recent contact messages in a unified timeline-style list with relevant details",
+      "acceptanceCriteria": [
+        "Recent activity feed shows latest 10 orders",
+        "Recent activity feed shows latest 5 contact messages",
+        "Each entry shows relevant info (ID, status or subject, amount or preview, time ago)",
+        "Clicking an order entry navigates to its detail page",
+        "Feed renders without errors"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/admin/RecentActivityFeed.tsx",
+          "operation": "create",
+          "description": "Create RecentActivityFeed component that receives recent orders and contact messages as props. Combine and sort them by creation timestamp to create a unified timeline. Display the 10 most recent orders and 5 most recent contact messages in chronological order. For orders, show order ID, status badge, USDT amount, and time elapsed since creation. For contact messages, show message ID or subject preview, sender name, and time elapsed. Use icons or labels to distinguish between orders and messages. Make order entries clickable, navigating to /admin/orders/{orderId}. Format time elapsed using a relative time utility (e.g., '2 hours ago')."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Add RecentActivityFeed component to the dashboard below the charts section. Fetch all orders using useGetAllOrders and contact messages using useGetContactMessages. Sort and slice to get the 10 most recent orders and 5 most recent messages. Pass this data to RecentActivityFeed. Wrap in SafeSection for error isolation."
+        },
+        {
+          "path": "frontend/src/utils/timeElapsed.ts",
+          "operation": "create",
+          "description": "Create utility function formatTimeElapsed that accepts a timestamp (Date or bigint) and returns a human-readable relative time string (e.g., 'just now', '5 minutes ago', '3 hours ago', '2 days ago'). Use standard date comparison logic to calculate elapsed time."
+        }
+      ]
+    }
+  ]
+}

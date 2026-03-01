@@ -1,0 +1,218 @@
+{
+  "kind": "build_request",
+  "title": "Upgrade Admin Panel with Full Dashboard Features",
+  "projectName": "GetYourCard Admin",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Create an Admin Dashboard overview page at /admin that displays key metrics cards: Total Orders, Pending Orders, Completed Orders, Total Revenue (in USDT), and current BTC/USDT rate. Each metric card should show a count or value with a trend indicator.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Admin proper dashboard mai jo features hoty wo sb chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Dashboard shows Total Orders count",
+        "Dashboard shows Pending Orders count",
+        "Dashboard shows Completed Orders count",
+        "Dashboard shows Total Revenue in USDT",
+        "Dashboard shows live BTC/USDT rate",
+        "All metric cards are visible on load without errors"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add a backend query function `getAdminStats` that returns aggregated stats: total order count, count by status (pending, processing, completed, cancelled), total USDT revenue from completed orders, and total number of contact messages.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Admin proper dashboard mai jo features hoty wo sb chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "getAdminStats is only callable by the site owner",
+        "Returns correct order counts by status",
+        "Returns total USDT revenue summed from completed orders",
+        "Returns total contact messages count"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a Revenue & Orders analytics section to the Admin Dashboard that shows a bar or line chart visualizing order volume and revenue over time (grouped by day or week based on order creation timestamps).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Admin proper dashboard mai jo features hoty wo sb chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Chart renders without errors",
+        "Chart shows order counts over time",
+        "Chart shows revenue (USDT) over time",
+        "Chart uses data from existing orders in the backend"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Enhance the Admin Orders page with filtering and sorting capabilities: filter by status (All, Pending, Processing, Completed, Cancelled), sort by date (newest/oldest), and show a summary count for each status as tab-style filters at the top of the list.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Admin proper dashboard mai jo features hoty wo sb chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Status filter tabs are shown with counts",
+        "Clicking a status tab filters the orders list",
+        "Sort by date (newest/oldest) works correctly",
+        "Selected filter state is visually highlighted"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Enhance the Admin Order Detail page to allow bulk status updates: add a quick-action toolbar on the AdminOrdersPage that lets the admin select multiple orders (via checkboxes) and update all selected orders' status at once.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Admin proper dashboard mai jo features hoty wo sb chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each order row has a checkbox for selection",
+        "A 'Select All' checkbox exists in the table header",
+        "A bulk action toolbar appears when at least one order is selected",
+        "Admin can update status of all selected orders in one action",
+        "Backend processes bulk status updates correctly"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add a backend query `getOrdersByDenomination` that returns a breakdown of orders grouped by denomination amount, so the admin can see which gift card values (e.g., $10, $25, $50, $100) are most popular.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Is website k hawaly sy kia tu wo bta skta ha k kia kia hony chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Only callable by the site owner",
+        "Returns a list of denomination values with their order counts",
+        "Returns total USDT sold per denomination"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Add a Card Inventory / Sales Breakdown section to the Admin Dashboard that shows a pie or donut chart of orders distributed by denomination (using data from `getOrdersByDenomination`), highlighting which gift card values sell most.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Is website k hawaly sy kia tu wo bta skta ha k kia kia hony chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Chart shows each denomination as a segment",
+        "Chart labels show denomination value and order count",
+        "Chart renders without errors"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Enhance the Admin Contact Messages page with unread/read status tracking: mark messages as read when an admin opens or views them, show an unread count badge on the sidebar navigation link, and visually distinguish unread messages (bold or highlighted row) from read ones.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Admin proper dashboard mai jo features hoty wo sb chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend stores a read/unread flag per contact message",
+        "Admin can mark a message as read",
+        "Unread messages appear visually distinct in the list",
+        "Sidebar nav link shows unread message count as a badge",
+        "Dashboard overview card shows unread messages count"
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Add a left sidebar navigation to the Admin Panel with links to: Dashboard (overview), Orders, Contact Messages, and Analytics. The sidebar should show active route highlighting and display badge counts for Pending Orders and Unread Messages.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Admin proper dashboard mai jo features hoty wo sb chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Sidebar is visible on all admin pages",
+        "Active route link is visually highlighted",
+        "Pending orders badge count is shown on Orders link",
+        "Unread messages badge count is shown on Contact Messages link",
+        "Sidebar navigation links work correctly"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Add a Recent Activity feed section on the Admin Dashboard that lists the 10 most recent orders and 5 most recent contact messages in a unified timeline-style list, showing order ID, status, amount, and time elapsed since creation.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Admin proper dashboard mai jo features hoty wo sb chahye"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Recent activity feed shows latest 10 orders",
+        "Recent activity feed shows latest 5 contact messages",
+        "Each entry shows relevant info (ID, status or subject, amount or preview, time ago)",
+        "Clicking an order entry navigates to its detail page",
+        "Feed renders without errors"
+      ]
+    }
+  ],
+  "constraints": [
+    "All admin routes must remain protected by the existing AdminRouteGuard (Internet Identity + ownership check)",
+    "Do not modify files in frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "All new backend functions must include the same authorization checks as existing admin functions (caller must be site owner)"
+  ],
+  "nonGoals": [
+    "User account management or user banning features",
+    "Email or SMS notification system",
+    "External analytics integrations (Google Analytics, etc.)",
+    "Custom domain or hosting configuration",
+    "Payment gateway changes or new payment methods"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

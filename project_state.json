@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Binance Gift Cards / getyourcard.biz app hosted on Caffeine (ICP). User wants admin panel improvements with proper dashboard features relevant to a gift card/crypto card platform.",
+  "architectural_notes": [
+    "App is hosted on Caffeine (ICP) at https://binancegiftcards-0ht.caffeine.xyz/ — custom domain (getyourcard.biz) not yet connected due to Caffeine paid plan requirement"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-an-admin-dashboard-overview-page-at-admin-that-displays-key-metrics-cards-total-orders-pending-orders-completed-orders-total-revenue-in-usdt-and-current-btc-usdt-rate-each-metric-card-should-show-a-count-or-value-with-a-trend-indicator",
+      "title": "Create an Admin Dashboard overview page at /admin that displays key metrics cards: Total Orders, Pending Orders, Completed Orders, Total Revenue (in USDT), and current BTC/USDT rate. Each metric card should show a count or value with a trend indicator.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-revenue-orders-analytics-section-to-the-admin-dashboard-that-shows-a-bar-or-line-chart-visualizing-order-volume-and-revenue-over-time-grouped-by-day-or-week-based-on-order-creation-timestamps",
+      "title": "Add a Revenue & Orders analytics section to the Admin Dashboard that shows a bar or line chart visualizing order volume and revenue over time (grouped by day or week based on order creation timestamps).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-the-admin-orders-page-with-filtering-and-sorting-capabilities-filter-by-status-all-pending-processing-completed-cancelled-sort-by-date-newest-oldest-and-show-a-summary-count-for-each-status-as-tab-style-filters-at-the-top-of-the-list",
+      "title": "Enhance the Admin Orders page with filtering and sorting capabilities: filter by status (All, Pending, Processing, Completed, Cancelled), sort by date (newest/oldest), and show a summary count for each status as tab-style filters at the top of the list.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-the-admin-order-detail-page-to-allow-bulk-status-updates-add-a-quick-action-toolbar-on-the-adminorderspage-that-lets-the-admin-select-multiple-orders-via-checkboxes-and-update-all-selected-orders-status-at-once",
+      "title": "Enhance the Admin Order Detail page to allow bulk status updates: add a quick-action toolbar on the AdminOrdersPage that lets the admin select multiple orders (via checkboxes) and update all selected orders' status at once.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-card-inventory-sales-breakdown-section-to-the-admin-dashboard-that-shows-a-pie-or-donut-chart-of-orders-distributed-by-denomination-using-data-from-getordersbydenomination-highlighting-which-gift-card-values-sell-most",
+      "title": "Add a Card Inventory / Sales Breakdown section to the Admin Dashboard that shows a pie or donut chart of orders distributed by denomination (using data from `getOrdersByDenomination`), highlighting which gift card values sell most.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-the-admin-contact-messages-page-with-unread-read-status-tracking-mark-messages-as-read-when-an-admin-opens-or-views-them-show-an-unread-count-badge-on-the-sidebar-navigation-link-and-visually-distinguish-unread-messages-bold-or-highlighted-row-from-read-ones",
+      "title": "Enhance the Admin Contact Messages page with unread/read status tracking: mark messages as read when an admin opens or views them, show an unread count badge on the sidebar navigation link, and visually distinguish unread messages (bold or highlighted row) from read ones.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-left-sidebar-navigation-to-the-admin-panel-with-links-to-dashboard-overview-orders-contact-messages-and-analytics-the-sidebar-should-show-active-route-highlighting-and-display-badge-counts-for-pending-orders-and-unread-messages",
+      "title": "Add a left sidebar navigation to the Admin Panel with links to: Dashboard (overview), Orders, Contact Messages, and Analytics. The sidebar should show active route highlighting and display badge counts for Pending Orders and Unread Messages.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-recent-activity-feed-section-on-the-admin-dashboard-that-lists-the-10-most-recent-orders-and-5-most-recent-contact-messages-in-a-unified-timeline-style-list-showing-order-id-status-amount-and-time-elapsed-since-creation",
+      "title": "Add a Recent Activity feed section on the Admin Dashboard that lists the 10 most recent orders and 5 most recent contact messages in a unified timeline-style list, showing order ID, status, amount, and time elapsed since creation.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Upgrade admin panel with proper dashboard features: sales/revenue stats, order management, user management, card inventory, transaction history, analytics charts, and notifications",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add a backend query function `getAdminStats` that returns aggregated stats: total order count, count by status (pending, processing, completed, cancelled), total USDT revenue from completed orders, and total number of contact messages.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Add a backend query `getOrdersByDenomination` that returns a breakdown of orders grouped by denomination amount, so the admin can see which gift card values (e.g., $10, $25, $50, $100) are most popular.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Binance Gift Cards",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
